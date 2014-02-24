@@ -13,6 +13,7 @@ class CardTranslator:
         # Dict to translate card numbers to names and vice versa
     deck_dict = dict(zip(range(1,53), card_names))
 
+    # Translate a card number to a card name
     @staticmethod
     def number_to_card(int):
         return CardTranslator.deck_dict[int]
@@ -24,10 +25,12 @@ class Deck:
         self.deck_array = range(1,53)
         random.shuffle(self.deck_array)
 
+    # Draw a card from the deck and return it
     def draw(self):
         return self.deck_array.pop()
 
 def main():
+    deck = Deck()
 
 if __name__ == '__main__':
     main()
