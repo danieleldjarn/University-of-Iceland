@@ -29,8 +29,19 @@ class Deck:
     def draw(self):
         return self.deck_array.pop()
 
+class Hand:
+
+    def show_hand():
+        print map(CardTranslator.number_to_card, self.cards)
+
+    def add_to_hand(int):
+        self.cards.append(int)
+
+
+
 def main():
     deck = Deck()
+    hand = Hand()
 
 if __name__ == '__main__':
     main()
