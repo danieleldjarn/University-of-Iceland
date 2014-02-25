@@ -151,6 +151,10 @@ def main():
         if command == "draw":
             Rules.draw_from_deck(deck, hand)
         elif command == "remove":
+            # Here it would be easy to allow players to specify names of cards instead of 
+            # positions, if I wan't to spend more time on this project.
+            # Some sort of error handeling for the next two lines is needed in case the player
+            # enters something other than an integer
             x = int(raw_input('Type the position of the first card (First position is 1): ')) - 1
             y = int(raw_input('Type the position of the second card: ')) - 1
             Rules.remove_cards(hand, x, y)
@@ -167,12 +171,7 @@ def main():
             print "Please enter a valid command"
         print "Your hand is", map(CardTranslator.number_to_card, hand.show_hand())
 
-
-
-
     print "Congratulations, you have won the game!"
-
-
 
 if __name__ == '__main__':
     main()
