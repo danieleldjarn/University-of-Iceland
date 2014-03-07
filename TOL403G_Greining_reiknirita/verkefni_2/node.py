@@ -66,6 +66,13 @@ class Node:
                 else:
                     return self.left.search(interval, self)
 
+def count_children(self):
+    children = 0
+    if self.left != None:
+        children += 1
+    if self.right != None:
+        children += 1
+    return children
 def delete(self, interval):
 
     node, nodeParent = self.search(interval)
