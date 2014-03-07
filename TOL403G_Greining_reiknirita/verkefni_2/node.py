@@ -73,9 +73,10 @@ def count_children(self):
     if self.right != None:
         children += 1
     return children
-def delete(self, interval):
 
+def delete(self, interval):
     node, nodeParent = self.search(interval)
+
     if node != None:
         children = node.count_children()
 
@@ -84,3 +85,15 @@ def delete(self, interval):
                 parent.left = None
             else:
                 parent.right = None
+
+        elif children == 1:
+            if parent.left == node:
+                if self.left != None:
+                    parent.left = self.left
+                elif: self.right != None:
+                    parent.left = self.right
+            elif parent.right == node:
+                if self.left != None:
+                    parent.right = self.left
+                elif: self.right != None:
+                    parent.right = self.right
