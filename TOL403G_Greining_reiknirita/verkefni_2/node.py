@@ -42,28 +42,38 @@ class Node:
 
     def search(self, interval, parent = None):
         if interval == self.interval:
-            return True, self
+            return self, parent
         elif interval[0] != self.interval[0]:
             if interval[0] > self.interval[0]:
                 if self.right == None:
-                    return False, None
+                    return None, None
                 else:
                     return self.right.search(interval, self)
             elif interval[0] < self.interval[0]:
                 if self.left == None:
-                    return False, None
+                    return None, None
                 else:
                     return self.left.search(interval, self)
         else:
             if interval[1] > self.interval[1]:
                 if self.right == None:
-                    return False, None
+                    return None, None
                 else:
                     return self.right.search(interval, self)
             elif interval[1] < self.interval[1]:
                 if self.left == None:
-                    return False, None
+                    return None, None
                 else:
                     return self.left.search(interval, self)
 
-#    def delete(self, interval):
+def delete(self, interval):
+
+    node, nodeParent = self.search(interval)
+    if node != None:
+        children = node.count_children()
+
+        if children == 0:
+            if parent.left == node:
+                parent.left = None
+            else:
+                parent.right = None
