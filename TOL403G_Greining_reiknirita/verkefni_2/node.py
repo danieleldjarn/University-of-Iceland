@@ -66,34 +66,41 @@ class Node:
                 else:
                     return self.left.search(interval, self)
 
-def count_children(self):
-    children = 0
-    if self.left != None:
-        children += 1
-    if self.right != None:
-        children += 1
-    return children
+    def count_children(self):
+        children = 0
+        if self.left != None:
+            children += 1
+        if self.right != None:
+            children += 1
+        return children
 
-def delete(self, interval):
-    node, nodeParent = self.search(interval)
+    def delete(self, interval):
+        node, nodeParent = self.search(interval)
 
-    if node != None:
-        children = node.count_children()
+        if node != None:
+            children = node.count_children()
 
-        if children == 0:
-            if parent.left == node:
-                parent.left = None
-            else:
-                parent.right = None
+            if children == 0:
+                if parent.left == node:
+                    parent.left = None
+                else:
+                    parent.right = None
 
-        elif children == 1:
-            if parent.left == node:
-                if self.left != None:
-                    parent.left = self.left
-                elif: self.right != None:
-                    parent.left = self.right
-            elif parent.right == node:
-                if self.left != None:
-                    parent.right = self.left
-                elif: self.right != None:
-                    parent.right = self.right
+            elif children == 1:
+                if parent.left == node:
+                    if self.left != None:
+                        parent.left = self.left
+                    elif: self.right != None:
+                        parent.left = self.right
+                elif parent.right == node:
+                    if self.left != None:
+                        parent.right = self.left
+                    elif: self.right != None:
+                        parent.right = self.right
+
+            elif children == 2:
+
+                # We find the in-order predecessor of the node being
+                # deleted and replace the node being deleted with it
+
+                if parent.left == node:
