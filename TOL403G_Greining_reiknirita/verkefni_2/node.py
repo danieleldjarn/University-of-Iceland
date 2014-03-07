@@ -108,6 +108,7 @@ class Node:
 
 
     def resetResultToPrint(self):
+        global resultToPrint
         resultToPrint = []
 
 
