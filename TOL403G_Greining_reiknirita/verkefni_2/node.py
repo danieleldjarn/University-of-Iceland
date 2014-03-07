@@ -162,3 +162,10 @@ class Node:
 
                 if successor_parent.right == successor:
                     successor_parent.right = successor.right
+
+    def in_order_tree_walk(self):
+        if(self.left != None):
+            self.left.in_order_tree_walk()
+        print self.interval
+        if(self.right != None):
+            self.right.in_order_tree_walk()
