@@ -1,5 +1,8 @@
 ''' An implementation of splay tree in python '''
 
+import sys
+sys.setrecursionlimit(10000)
+
 resultToPrint = []
 class Node:
 
@@ -86,10 +89,8 @@ class Node:
             self.right.searchSingle(value)
 
     def searchIntersect(self, interval):
-        if self.interval[0] <= interval[0] and interval[0] <= self.interval[1]:
+        if interval[0] <= self.interval[1] and self.interval[0] <= interval[1]:
             resultToPrint.append(self.interval)
-        if self.interval[0] <= interval[1] and interval[1] <= self.interval[1] and self.interval not in resultToPrint:
-            resultToPrint.append(node)
         if self.left != None:
             self.left.searchIntersect(interval)
         if self.right != None:
