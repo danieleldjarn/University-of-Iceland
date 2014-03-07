@@ -1,6 +1,9 @@
 ''' An implementation of splay tree in python '''
 
+resultToPrint = []
 class Node:
+
+
 
     def __init__(self, interval = None):
         self.interval = interval
@@ -67,7 +70,6 @@ class Node:
                     return self.left.search(interval, self)
 
     def searchInclusive(self, interval):
-        resultToPrint = []
         if self.interval[0] <= interval[0] and interval[1] <= self.interval[1]:
             resultToPrint.append(self.interval)
         if self.left != None:
@@ -76,7 +78,6 @@ class Node:
             self.right.searchInclusive(interval)
 
     def searchSingle(self, value):
-        resultToPrint = []
         if self.interval[0] <= value and value <= self.interval[1]:
             resultToPrint.append(self.interval)
         if self.left != None:
@@ -85,7 +86,6 @@ class Node:
             self.right.searchSingle(value)
 
     def searchIntersect(self, interval):
-        resultToPrint = []
         if self.interval[0] <= interval[0] and interval[0] <= self.interval[1]:
             resultToPrint.append(self.interval)
         if self.interval[0] <= interval[1] and interval[1] <= self.interval[1] and self.interval not in resultToPrint:
@@ -94,6 +94,21 @@ class Node:
             self.left.searchIntersect(interval)
         if self.right != None:
             self.right.searchIntersect(interval)
+
+    def printOutput(self):
+        stringToPrint = ""
+        if resultToPrint == []:
+            print '[]'
+        else:
+            for interval in resultToPrint:
+                stringToPrint += str(interval)
+
+            print stringToPrint
+            self.resetResultToPrint()
+
+
+    def resetResultToPrint(self):
+        resultToPrint = []
 
 
     def count_children(self):
@@ -120,12 +135,12 @@ class Node:
                 if node_parent.left == node:
                     if node.left != None:
                         node_parent.left = node.left
-                    elif: node.right != None:
+                    elif node.right != None:
                         node_arent.left = node.right
                 elif node_parent.right == node:
                     if node.left != None:
                         node_parent.right = node.left
-                    elif: node.right != None:
+                    elif node.right != None:
                         node_parent.right = node.right
 
             elif children == 2:

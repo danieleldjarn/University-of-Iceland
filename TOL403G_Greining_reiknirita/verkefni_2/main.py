@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from derpTree import DerpTree
+#from derpTree import DerpTree
+from node import Node
 import sys
 
 def parseInput(input):
-    t = DerpTree()
+    t = Node()
     for line in input:
         if line.startswith('+'):
             line = line.replace('+', '')
@@ -44,6 +45,8 @@ def search(tree, line):
         line = line.replace('p', '')
         value = int(line)
         tree.searchSingle(value)
+
+    tree.printOutput()
 
 if __name__=="__main__":
     parseInput(sys.stdin)
