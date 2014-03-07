@@ -66,6 +66,36 @@ class Node:
                 else:
                     return self.left.search(interval, self)
 
+    def searchInclusive(self, interval):
+        resultToPrint = []
+        if self.interval[0] <= interval[0] and interval[1] <= self.interval[1]:
+            resultToPrint.append(self.interval)
+        if self.left != None:
+            self.left.searchInclusive(interval)
+        if self.right != None:
+            self.right.searchInclusive(interval)
+
+    def searchSingle(self, value):
+        resultToPrint = []
+        if self.interval[0] <= value and value <= self.interval[1]:
+            resultToPrint.append(self.interval)
+        if self.left != None:
+            self.left.searchSingle(value)
+        if self.right != None:
+            self.right.searchSingle(value)
+
+    def searchIntersect(self, interval):
+        resultToPrint = []
+        if self.interval[0] <= interval[0] and interval[0] <= self.interval[1]:
+            resultToPrint.append(self.interval)
+        if self.interval[0] <= interval[1] and interval[1] <= self.interval[1] and self.interval not in resultToPrint:
+            resultToPrint.append(node)
+        if self.left != None:
+            self.left.searchIntersect(interval)
+        if self.right != None:
+            self.right.searchIntersect(interval)
+
+
     def count_children(self):
         children = 0
         if self.left != None:
