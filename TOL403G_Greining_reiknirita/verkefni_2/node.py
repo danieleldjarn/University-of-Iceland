@@ -75,32 +75,43 @@ class Node:
         return children
 
     def delete(self, interval):
-        node, nodeParent = self.search(interval)
+        node, node_parent = self.search(interval)
 
         if node != None:
             children = node.count_children()
 
             if children == 0:
-                if parent.left == node:
-                    parent.left = None
+                if node_parent.left == node:
+                    node_parent.left = None
                 else:
-                    parent.right = None
+                    node_parent.right = None
 
             elif children == 1:
-                if parent.left == node:
-                    if self.left != None:
-                        parent.left = self.left
-                    elif: self.right != None:
-                        parent.left = self.right
-                elif parent.right == node:
-                    if self.left != None:
-                        parent.right = self.left
-                    elif: self.right != None:
-                        parent.right = self.right
+                if node_parent.left == node:
+                    if node.left != None:
+                        node_parent.left = node.left
+                    elif: node.right != None:
+                        node_arent.left = node.right
+                elif node_parent.right == node:
+                    if node.left != None:
+                        node_parent.right = node.left
+                    elif: node.right != None:
+                        node_parent.right = node.right
 
             elif children == 2:
 
                 # We find the in-order predecessor of the node being
                 # deleted and replace the node being deleted with it
+                successor_parent = node
+                successor = node.right
+                while successor.left != None:
+                    successor_parent = successor
+                    successor = successor.left
 
-                if parent.left == node:
+                node.interval = successor.interval
+
+                if successor_parent.left == successor:
+                    successor_parent.left = successor.right
+
+                if successor_parent.right == successor:
+                    successor_parent.right = successor.right
