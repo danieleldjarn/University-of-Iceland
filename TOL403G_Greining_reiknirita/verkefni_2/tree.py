@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from node import Node
-
 ''' An implementation of splay tree in python '''
 
 import sys
@@ -21,54 +20,182 @@ class Tree:
         self._insert(interval, self.root)
 
     def _insert(self, interval, node):
-        
+        #print "NODE"
+        #print node
+        #print node.interval
+        leftInsert = False
+        rightInsert = True
+        '''print type(self.root.interval)
+        print type(self.root)
+        print type(node)
+        print type(node.interval)
+        print type(None)
+        print self.root.interval'''
+        #print "derpaherp"
+        #print self.root
+        #print self.root.interval
         # If the node has no interval we set it's interval to the new interval.
         if node.interval == None:
+            #print "herpaderp"
+            #print self.root.interval
             node.interval = interval
             node.max = interval[1]
             self.setMaxInsert(node)
+
 
         # To put the new interval in the correct position we start by
         # comparing the lower end of the interval and then the 
         # higher end of the interval.
         # If the exact same interval is in the tree nothing will happen.
+
+        # 0 er minna en 2
         elif interval[0] < node.interval[0]:
+            #print "I should be here"
+            # node.left er ekki tómt
             if node.left == None:
-                node.left = Node(interval, node)
-                node.left.max = interval[1]
-                self.setMaxInsert(node.left)
-                #self.splay(node.left)
-                #self.root = node.left
+                #print "I should NOT be here"
+                self.placeNewNode(interval, node, leftInsert)
             else:
-                self._insert(interval, node)
+                self._insert(interval, node.left)
         elif interval[0] > node.interval[0]:
             if node.right == None:
-                node.right = Node(interval, node)
-                node.right.max = interval[1]
-                self.setMaxInsert(node.right)
-                #self.splay(node.right)
-                #self.root = node.right
+                self.placeNewNode(interval, node, rightInsert)
             else:
                 self._insert(interval, node.right)
         elif interval[0] == node.interval[0]:
             if interval[1] < node.interval[1]:
                 if node.left == None:
-                    node.left = Node(interval, node)
-                    node.left.max = interval[1]
-                    self.setMaxInsert(node.left)
-                    #self.splay(node.left)
-                    #self.root = node.left
+                    self.placeNewNode(interval, node, leftInsert)
                 else:
                     self._insert(interval, node.left)
             elif interval[1] > node.interval[1]:
                 if node.right == None:
-                    node.right = Node(interval, node)
-                    node.right.max = interval[1]
-                    self.setMaxInsert(node.right)
-                    #self.splay(node.right)
-                    #self.root = node.right
+                    self.placeNewNode(interval, node, rightInsert)
                 else:
                     self._insert(interval, node.right)
+
+    def placeNewNode(self, interval, node, rightInsert):
+        #print "then I went here"
+        if rightInsert:
+            #print "node right 1"
+            #print node.right
+            node.right = Node(interval, node)
+            #print "node right 2"
+            #print node.right
+            node.right.max = interval[1]
+            #print "node right 3"
+            #print node.right
+            self.setMaxInsert(node.right)
+            #print "node right 4"
+            #print node.right
+            #print "node right value 1"
+            #print node.right.interval
+            #print "node value 1"
+            #print node.interval
+            #print "inorderbeforesplay"
+            #self.in_order_tree_walk(self.root)
+            self.splay(node.right)
+            #print self.root.parent.interval
+            #print "inorderaftersplay"
+            #self.in_order_tree_walk(self.root)
+            #print "node right 5"
+            #print node.right
+            #print "self root 1"
+            #print self.root
+            oldRoot = self.root
+            rootParent = self.root.parent
+            rootGrandParent = self.root.parent.parent
+            if rootGrandParent != None:
+                if rootParent == rootGrandParent.left:
+                    self.root = rootGrandParent
+                    self.root.left = rootParent
+                    if rootGrandParent.right:
+                        rootGrandParent.right.parent = self.root
+                    rootParent.parent = self.root
+                    rootParent.left = oldRoot
+                elif rootParent == rootGrandParent.right:
+                    self.root = rootGrandParent
+                    self.root.right = rootParent
+                    if rootGrandParent.left:
+                        rootGrandParent.left.parent = self.root
+                    rootParent.parent = self.root
+                    rootParent.right = oldRoot
+            else:
+                if self.root == rootParent.left:
+                    #print "leftchild"
+                    #print rootParent.left
+                    #print self.root
+                    #print rootParent
+                    self.root = rootParent
+                    self.root.left = oldRoot
+                    oldRoot.parent = self.root
+                elif self.root == rootParent.right:
+                    #print "rightchild"
+                    #print rootParent.right
+                    #print self.root
+                    self.root = rootParent
+                    self.root.right = oldRoot
+                    oldRoot.parent = self.root
+            #print "self root 2"
+            #print self.root
+        else:
+            #print "node.left 1"
+            #print node.left
+            node.left = Node(interval, node)
+            #print "node.left 2"
+            #print node.left
+            node.left.max = interval[1]
+            #print "node.left 3"
+            #print node.left
+            self.setMaxInsert(node.left)
+            #print "node.left 4"
+            #print node.left
+            self.splay(node.left)
+            #print "node.left 5"
+            #print node.left
+            #print self.root.interval
+            #print self.root
+            #print self.root.parent
+            #print self.root.parent.interval
+            #print self.root.parent.parent.interval
+
+            oldRoot = self.root
+            rootParent = self.root.parent
+            rootGrandParent = self.root.parent.parent
+            if rootGrandParent != None:
+                if rootParent == rootGrandParent.left:
+                    self.root = rootGrandParent
+                    self.root.left = rootParent
+                    if rootGrandParent.right:
+                        rootGrandParent.right.parent = self.root
+                    rootParent.parent = self.root
+                    rootParent.left = oldRoot
+                elif rootParent == rootGrandParent.right:
+                    self.root = rootGrandParent
+                    self.root.right = rootParent
+                    if rootGrandParent.left:
+                        rootGrandParent.left.parent = self.root
+                    rootParent.parent = self.root
+                    rootParent.right = oldRoot
+            else:
+                if self.root == rootParent.left:
+                    ##print "leftchild"
+                    #print rootParent.left
+                    #print self.root
+                    #print rootParent
+                    self.root = rootParent
+                    self.root.left = oldRoot
+                    oldRoot.parent = self.root
+                elif self.root == rootParent.right:
+                    #print "rightchild"
+                    #print rootParent.right
+                    #print self.root
+                    self.root = rootParent
+                    self.root.right = oldRoot
+                    oldRoot.parent = self.root
+
+            #print self.root
+            #print self.root
 
     def setMaxInsert(self, node):
         newMax = node.max
@@ -284,7 +411,7 @@ class Tree:
     # Walks trhough the tree and returns all the intervals in accending order
         if(node.left != None):
             self.in_order_tree_walk(node.left)
-        return node.interval
+        print node.interval
         if(node.right != None):
             self.in_order_tree_walk(node.right)
 
@@ -300,6 +427,8 @@ class Tree:
 #        / \    / \
 #       B   C  A   B 
     def rotate_left(self, node):
+        #print "rotate left"
+        #print node
         parent = node.parent
         if parent != None:
             grand_parent = parent.parent
@@ -337,6 +466,8 @@ class Tree:
 #      / \          / \
 #     A   B        B   C
     def rotate_right(self, node):
+        #print "rotate right"
+        #print node
         parent = node.parent
         if parent != None :
             grand_parent = parent.parent
@@ -384,7 +515,11 @@ class Tree:
 
 
     def splay(self, node):
+        #print "splay node"
+        #print node
         if node.parent == None:
+           # print "no parent"
+            #print node
             return
         elif node.parent.parent == None:
             parent = node.parent
@@ -404,12 +539,12 @@ class Tree:
                     self.rotate_right(node)
                     self.splay(node)
                 else:                       # Zikk Zakk
-                    self.rotate_left(parent)
+                    self.rotate_left(node)
                     self.rotate_right(node)
                     self.splay(node)
             else:
                 if node == parent.left:     # Zakk Zikk
-                    self.rotate_right(parent)
+                    self.rotate_right(node)
                     self.rotate_left(node)
                     self.splay(node)
                 else:                       # Zakk Zakk
