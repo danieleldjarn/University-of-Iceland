@@ -6,7 +6,7 @@ from node import Node
 import sys
 
 def parseInput(input):
-    t = Node()
+    t = Tree()
     for line in input:
         if line.startswith('+'):
             line = line.replace('+', '')
