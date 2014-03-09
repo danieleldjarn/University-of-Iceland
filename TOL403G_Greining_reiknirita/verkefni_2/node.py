@@ -99,7 +99,6 @@ class Node:
                     return self.left.search(interval)
 
     def searchInclusive(self, interval):
-        print self.max
         if self.interval[0] <= interval[0] and interval[1] <= self.interval[1]:
             resultToPrint.append(self.interval)
         if self.left != None:
@@ -108,7 +107,6 @@ class Node:
             self.right.searchInclusive(interval)
 
     def searchSingle(self, value):
-        print self.max
         if self.interval[0] <= value and value <= self.interval[1]:
             resultToPrint.append(self.interval)
         if self.left != None:
@@ -117,7 +115,6 @@ class Node:
             self.right.searchSingle(value)
 
     def searchIntersect(self, interval):
-        print self.max
         if interval[0] <= self.interval[1] and self.interval[0] <= interval[1]:
             resultToPrint.append(self.interval)
         if self.left != None:
@@ -134,7 +131,7 @@ class Node:
             for interval in resultToPrint:
                 stringToPrint += str(interval)
 
-            #print stringToPrint
+            print stringToPrint
             self.resetResultToPrint()
 
     def resetResultToPrint(self):
@@ -165,6 +162,7 @@ class Node:
     def delete(self, interval):
         node = self.search(interval)
         if node:
+            node.fixMax()
             node.splay()
 
             if interval != node.interval:
@@ -184,6 +182,38 @@ class Node:
                 node.parent = None
         else:
             raise "Node not in tree"
+
+    def fixMax(self):
+        parent = self.parent
+        if parent != None:
+            oldMax = self.max
+            biggerChildMax = -1
+            siblingMax = -1
+            biggestRelativeMax = -1
+            if self.left:
+                biggerChildMax = self.left.max
+            if self.right and biggerChildMax <= self.right.max:
+                biggerChildMax = self.right.max
+
+            if parent.left and parent.left.max != oldMax:
+                siblingMax = parent.left.max
+            if parent.right and siblingMax <= parent.right.max:
+                siblingMax = parent.right.max
+
+            if siblingMax <= biggerChildMax:
+                biggestRelativeMax = biggerChildMax
+            else:
+                biggestRelativeMax = siblingMax
+
+            if biggerChildMax < oldMax and siblingMax < oldMax:
+                while parent != None and parent.max <= oldMax:
+                    grandParent = parent.parent
+                    parent.max = biggestRelativeMax
+                    if parent.max <= parent.left.max:
+                        parent.max = parent.left.max
+                    if parent.max <= parent.right.max:
+                        parent.max = parent.right.max
+                    parent = grandParent
 
 
     '''
