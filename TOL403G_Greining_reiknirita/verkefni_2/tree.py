@@ -197,6 +197,10 @@ class Tree:
             #print self.root
             #print self.root
 
+
+    # Usage:    t.setMaxInsert(n)
+    # Before:   t is an object of type tree and n is an object of type node.
+    # After:    The maximum value in the branch in t which n was inserted into has been updated.
     def setMaxInsert(self, node):
         newMax = node.max
         parent = node.parent
@@ -208,6 +212,9 @@ class Tree:
             parent.max = newMax
             parent = grandParent
 
+    # Usage:    n = t.search(i)
+    # Before:   t is an object of type tree and i is an interval.+
+    # After:    If i was in the tree, n is the node containing i. If i is not in the tree n is None
     def search(self, interval, node):
         if interval == node.interval:
             return node
@@ -245,6 +252,9 @@ class Tree:
         if node.right != None and interval[1] <= node.right.max:
             self._searchInclusive(interval, node.right)
 
+    # Usage:    t.searchSingle(p)
+    # Before:   t is an object of type tree, p is an integer (point)
+    # After:    All intervals in t that include p have been added to resultToPrint
     def searchSingle(self, value):
         self._searchSingle(value, self.root)
 
@@ -259,6 +269,9 @@ class Tree:
     def searchIntersect(self, interval):
         self._searchIntersect(interval, self.root)
 
+    # Usage:    t.searchIntersect(i)
+    # Before:   t is an object of type tree, i is an interval
+    # After:    All intervals in t that intersect i have been added to resultToPrint
     def _searchIntersect(self, interval, node):
         if interval[0] <= node.interval[1] and node.interval[0] <= interval[1]:
             self.resultToPrint.append(node.interval)
@@ -267,6 +280,10 @@ class Tree:
         if node.right != None and interval[1] <= node.right.max:
             self._searchIntersect(interval, node.right)
 
+    # Usage:    t.printOutput()
+    # Before:   t is an object of type tree
+    # After:    The contents of the global variable resultToPrint have been printed
+    #           onto standar output
     def printOutput(self):
         stringToPrint = ""
         if self.resultToPrint == []:
