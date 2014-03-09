@@ -7,7 +7,7 @@ root.insert([2, 7])
 root.insert([6, 7])
 root.insert([4, 8])
 root.insert([1, 10])
-
+#troll komment
 root.in_order_tree_walk()
 
 
