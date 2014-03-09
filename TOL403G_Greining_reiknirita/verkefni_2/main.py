@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #from derpTree import DerpTree
-from node import Node
+from tree import Tree
 import sys
 
 def parseInput(input):
