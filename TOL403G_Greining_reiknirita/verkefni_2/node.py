@@ -1,7 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 ''' An implementation of splay tree in python '''
 
 import sys
-sys.setrecursionlimit(10000)
+#sys.setrecursionlimit(100000)
 
 resultToPrint = []
 class Node:
@@ -13,6 +16,7 @@ class Node:
         self.parent = parent
         self.left = None
         self.right = None
+        self.max = None
 
     
     def insert(self, interval):
@@ -20,6 +24,8 @@ class Node:
         # If the node has no interval we set it's interval to the new interval.
         if self.interval == None:
             self.interval = interval
+            self.max = interval[1]
+            self.setMax()
 
         # To put the new interval in the correct position we start by
         # comparing the lower end of the interval and then the 
@@ -28,24 +34,43 @@ class Node:
         elif interval[0] < self.interval[0]:
             if self.left == None:
                 self.left = Node(interval, self)
+                self.left.max = interval[1]
+                self.left.setMax()
             else:
                 self.left.insert(interval, self)
         elif interval[0] > self.interval[0]:
             if self.right == None:
                 self.right = Node(interval, self)
+                self.right.max = interval[1]
+                self.right.setMax()
             else:
                 self.right.insert(interval)
         elif interval[0] == self.interval[0]:
             if interval[1] < self.interval[1]:
                 if self.left == None:
                     self.left = Node(interval, self)
+                    self.left.max = interval[1]
+                    self.left.setMax()
                 else:
                     self.left.insert(interval)
             elif interval[1] > self.interval[1]:
                 if self.right == None:
                     self.right = Node(interval, self)
+                    self.right.max = interval[1]
+                    self.right.setMax()
                 else:
                     self.right.insert(interval)
+
+    def setMax(self):
+        newMax = self.max
+        parent = self.parent
+        #print newMax
+        while parent != None and parent.max < newMax:
+            grandParent = parent.parent
+            #if parent.max < newMax:
+             #   parent.max = newMax
+            parent.max = newMax
+            parent = grandParent
 
     def search(self, interval):
         if interval == self.interval:
@@ -74,6 +99,7 @@ class Node:
                     return self.left.search(interval)
 
     def searchInclusive(self, interval):
+        print self.max
         if self.interval[0] <= interval[0] and interval[1] <= self.interval[1]:
             resultToPrint.append(self.interval)
         if self.left != None:
@@ -82,6 +108,7 @@ class Node:
             self.right.searchInclusive(interval)
 
     def searchSingle(self, value):
+        print self.max
         if self.interval[0] <= value and value <= self.interval[1]:
             resultToPrint.append(self.interval)
         if self.left != None:
@@ -90,6 +117,7 @@ class Node:
             self.right.searchSingle(value)
 
     def searchIntersect(self, interval):
+        print self.max
         if interval[0] <= self.interval[1] and self.interval[0] <= interval[1]:
             resultToPrint.append(self.interval)
         if self.left != None:
@@ -100,12 +128,13 @@ class Node:
     def printOutput(self):
         stringToPrint = ""
         if resultToPrint == []:
-            return
+            print "[]" #þetta verður að vera. Return dugar ekki.
         else:
+            resultToPrint.sort()
             for interval in resultToPrint:
                 stringToPrint += str(interval)
 
-            print stringToPrint
+            #print stringToPrint
             self.resetResultToPrint()
 
     def resetResultToPrint(self):
@@ -135,23 +164,26 @@ class Node:
     # There is only one case that needs to be considdered when deleting
     def delete(self, interval):
         node = self.search(interval)
-        node.splay()
+        if node:
+            node.splay()
 
-        if interval != node.interval:
-            raise "Interval not in tree"
+            if interval != node.interval:
+                raise "Interval not in tree"
 
-        if node.left == None:
-            node = node.right
-            node.parent = None
-        if node.right == None:
-            node = node.left
-            node.parent = None
+            if node.left == None:
+                node = node.right
+                node.parent = None
+            if node.right == None:
+                node = node.left
+                node.parent = None
+            else:
+                temp = node.right
+                node = node.left
+                node.splay(node.left.max())
+                node.right = temp
+                node.parent = None
         else:
-            temp = node.right
-            node = node.left
-            node.splay(node.left.max())
-            node.right = temp
-            node.parent = None
+            raise "Node not in tree"
 
 
     '''
