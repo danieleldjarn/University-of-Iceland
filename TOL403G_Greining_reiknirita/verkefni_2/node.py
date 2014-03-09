@@ -4,7 +4,7 @@
 ''' An implementation of splay tree in python '''
 
 import sys
-#sys.setrecursionlimit(100000)
+sys.setrecursionlimit(10000)
 
 resultToPrint = []
 class Node:
@@ -25,7 +25,7 @@ class Node:
         if self.interval == None:
             self.interval = interval
             self.max = interval[1]
-            self.setMax()
+            self.setMaxInsert()
 
         # To put the new interval in the correct position we start by
         # comparing the lower end of the interval and then the 
@@ -35,14 +35,16 @@ class Node:
             if self.left == None:
                 self.left = Node(interval, self)
                 self.left.max = interval[1]
-                self.left.setMax()
+                self.left.setMaxInsert()
+                #self.left.splay()
             else:
                 self.left.insert(interval, self)
         elif interval[0] > self.interval[0]:
             if self.right == None:
                 self.right = Node(interval, self)
                 self.right.max = interval[1]
-                self.right.setMax()
+                self.right.setMaxInsert()
+                #self.right.splay()
             else:
                 self.right.insert(interval)
         elif interval[0] == self.interval[0]:
@@ -50,18 +52,18 @@ class Node:
                 if self.left == None:
                     self.left = Node(interval, self)
                     self.left.max = interval[1]
-                    self.left.setMax()
+                    self.left.setMaxInsert()
                 else:
                     self.left.insert(interval)
             elif interval[1] > self.interval[1]:
                 if self.right == None:
                     self.right = Node(interval, self)
                     self.right.max = interval[1]
-                    self.right.setMax()
+                    self.right.setMaxInsert()
                 else:
                     self.right.insert(interval)
 
-    def setMax(self):
+    def setMaxInsert(self):
         newMax = self.max
         parent = self.parent
         #print newMax
@@ -101,25 +103,25 @@ class Node:
     def searchInclusive(self, interval):
         if self.interval[0] <= interval[0] and interval[1] <= self.interval[1]:
             resultToPrint.append(self.interval)
-        if self.left != None:
+        if self.left != None and interval[1] <= self.left.max:
             self.left.searchInclusive(interval)
-        if self.right != None:
+        if self.right != None and interval[1] <= self.right.max:
             self.right.searchInclusive(interval)
 
     def searchSingle(self, value):
         if self.interval[0] <= value and value <= self.interval[1]:
             resultToPrint.append(self.interval)
-        if self.left != None:
+        if self.left != None and value <= self.left.max:
             self.left.searchSingle(value)
-        if self.right != None:
+        if self.right != None and value <= self.right.max:
             self.right.searchSingle(value)
 
     def searchIntersect(self, interval):
         if interval[0] <= self.interval[1] and self.interval[0] <= interval[1]:
             resultToPrint.append(self.interval)
-        if self.left != None:
+        if self.left != None and interval[1] <= self.left.max:
             self.left.searchIntersect(interval)
-        if self.right != None:
+        if self.right != None and interval[1] <= self.right.max:
             self.right.searchIntersect(interval)
 
     def printOutput(self):
@@ -162,7 +164,7 @@ class Node:
     def delete(self, interval):
         node = self.search(interval)
         if node:
-            node.fixMax()
+            node.setMaxDelete()
             node.splay()
 
             if interval != node.interval:
@@ -177,35 +179,35 @@ class Node:
             else:
                 temp = node.right
                 node = node.left
-                node.splay(node.left.max())
+                node.splay(node.left.max()) #hvað er þetta?
                 node.right = temp
                 node.parent = None
         else:
             raise "Node not in tree"
 
-    def fixMax(self):
+    def setMaxDelete(self):
         parent = self.parent
         if parent != None:
             oldMax = self.max
-            biggerChildMax = -1
+            childMax = -1
             siblingMax = -1
             biggestRelativeMax = -1
             if self.left:
-                biggerChildMax = self.left.max
-            if self.right and biggerChildMax <= self.right.max:
-                biggerChildMax = self.right.max
+                childMax = self.left.max
+            if self.right and childMax <= self.right.max:
+                childMax = self.right.max
 
             if parent.left and parent.left.max != oldMax:
                 siblingMax = parent.left.max
             if parent.right and siblingMax <= parent.right.max:
                 siblingMax = parent.right.max
 
-            if siblingMax <= biggerChildMax:
-                biggestRelativeMax = biggerChildMax
+            if siblingMax <= childMax:
+                biggestRelativeMax = childMax
             else:
                 biggestRelativeMax = siblingMax
 
-            if biggerChildMax < oldMax and siblingMax < oldMax:
+            if childMax < oldMax and siblingMax < oldMax:
                 while parent != None and parent.max <= oldMax:
                     grandParent = parent.parent
                     parent.max = biggestRelativeMax
@@ -308,6 +310,9 @@ class Node:
                 self.left = parent
                 self.parent = root_parent
 
+            self.left.setMaxValue()
+            self.setMaxValue()
+
 #   Notkun: node.rotate_right()
 #   Fyrir : node er hlekkur i Splay tre
 #   Eftir : Buid er ad faera node upp um eitt saeti eins og sest eftirfarandi mynd
@@ -341,6 +346,29 @@ class Node:
                 parent.parent = self
                 self.right = parent
                 self.parent = root_parent
+
+            self.right.setMaxValue()
+            self.setMaxValue()
+
+    def setMaxValue(self):
+        leftMax = -1
+        rightMax = -1
+        childMax = -1
+        selfMax = self.interval[1]
+        if self.left:
+            leftMax = self.left.max
+        if self.right:
+            rightMax = self.right.max
+        
+        if leftMax <= rightMax:
+            childMax = rightMax
+        else:
+            childMax = leftMax
+        if selfMax <= childMax:
+            self.max = childMax
+        else:
+            self.max = selfMax
+
 
     def splay(self):
         if self.parent == None:
