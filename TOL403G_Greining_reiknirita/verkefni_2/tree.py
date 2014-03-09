@@ -14,6 +14,9 @@ class Tree:
         self.root = Node()
         self.resultToPrint = []
     
+    # Notkun:   t.insert(i)
+    # Fyrir:    t er hlutur af gerð tree og i er bil.
+    # Eftir:    Búið er að bæta bilinu i inn í tréið t á réttan stað
     def insert(self, interval):
         self._insert(interval, self.root)
 
