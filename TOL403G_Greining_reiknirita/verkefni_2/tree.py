@@ -14,23 +14,19 @@ class Tree:
         self.resultToPrint = []
     
     # Notkun:   t.insert(i)
-    # Fyrir:    t er hlutur af gerð tree og i er bil.
+    # Fyrir:    t er hlutur af gerð tree og i er heiltölubil.
     # Eftir:    Búið er að bæta bilinu i inn í tréið t á réttan stað
     def insert(self, interval):
         self._insert(interval, self.root)
 
+    # Notkun:   t._insert(i, n)
+    # Fyrir: t er hlutur af gerð tree, i er heiltölubil og n er nóða í trénu t
+    # Eftir: Búið er að bæta bilinu i inn í tréð á réttan stað
     def _insert(self, interval, node):
         leftInsert = False
         rightInsert = True
-        # If the node has no interval we set it's interval to the new interval.
         if node.interval == None:
             node.interval = interval
-
-
-        # To put the new interval in the correct position we start by
-        # comparing the lower end of the interval and then the 
-        # higher end of the interval.
-        # If the exact same interval is in the tree nothing will happen.
 
         elif interval[0] < node.interval[0]:
             if node.left == None:
@@ -54,6 +50,12 @@ class Tree:
                 else:
                     self._insert(interval, node.right)
 
+    # Notkun:   t.placeNewNode(i, n, insertionType)
+    # Fyrir:    t er tré, i er heiltölubil, n er foreldri nóðu sem á að bæta við í tréð
+    #           insertionType er boolean breyta sem segir hvort nýja nóðan eigi
+    #           að vera vinstra eða hægra barn n. 
+    #           False = left child. True = right child
+    # Eftir:    Búið er að búa til nýja nóðu á réttum stað í trénu.
     def placeNewNode(self, interval, node, rightInsert):
         if rightInsert:
             node.right = Node(interval, node)
@@ -64,8 +66,10 @@ class Tree:
             self.splay(node.left)
             self.setRoot()
 
-            
-
+    # Notkun:   t.setRoot()
+    # Fyrir:    t er tré sem ný búið er að framkvæma splay aðgerð á. 
+    #           t.root er barn eða barnabarn rótar.
+    # Eftir:    t.root er orðin rót trésins
     def setRoot(self):
         oldRoot = self.root
         rootParent = self.root.parent
@@ -95,9 +99,10 @@ class Tree:
                 self.root.right = oldRoot
                 oldRoot.parent = self.root
 
-    # Usage:    n = t.search(i)
-    # Before:   t is an object of type tree and i is an interval.+
-    # After:    If i was in the tree, n is the node containing i. If i is not in the tree n is None
+    # Notkun:    n = t.search(i)
+    # Fyrir:   t er tré og i er heiltölubil
+    # Eftir:    Ef i var í trénu þá er n nóðan sem inniheldur i.
+    #           Annars er n None
     def search(self, interval, node):
         if interval == node.interval:
             return node
@@ -124,9 +129,15 @@ class Tree:
                 else:
                     return self.search(interval, node.left)
 
+    # Notkun: t.searchInclusive(i)
+    # Fyrir: t er tré. i er heiltölubil
+    # Eftir: Búið er að finna allar nóður í t sem innihalda bilið i.
     def searchInclusive(self, interval):
         self._searchInclusive(interval, self.root)
 
+    # Notkun: t._searchInclusive(i, n)
+    # Fyrir: t er tré. i er heiltölubil, n er nóða í t.
+    # Eftir: Búið er að finna allar nóður í t sem innihalda bilið i
     def _searchInclusive(self, interval, node):
         if node.interval[0] <= interval[0] and interval[1] <= node.interval[1]:
             self.resultToPrint.append(node.interval)
@@ -135,12 +146,15 @@ class Tree:
         if node.right != None:
             self._searchInclusive(interval, node.right)
 
-    # Usage:    t.searchSingle(p)
-    # Before:   t is an object of type tree, p is an integer (point)
-    # After:    All intervals in t that include p have been added to resultToPrint
+    # Notkun: t.searchSingle(p)
+    # Fyrir: t er tré, p er heiltala
+    # Eftir: Búið er að finna allar nóður í t sem innihalda gildið p
     def searchSingle(self, value):
         self._searchSingle(value, self.root)
 
+    # Notkun: t._searchSingle(p, n)
+    # Fyrir: t er tré, p er heiltala, n er nóða í t
+    # Eftir: Búið er að finna allar nóður í t sem innihalda gildið p.
     def _searchSingle(self, value, node):
         if node.interval[0] <= value and value <= node.interval[1]:
             self.resultToPrint.append(node.interval)
@@ -149,12 +163,15 @@ class Tree:
         if node.right != None:
             self._searchSingle(value, node.right)
 
+    # Notkun: t.searchIntersect(i)
+    # Fyrir: t er tré. i er heiltölubil
+    # Eftir: Búið er að finna allar nóður í t sem skerast á við bilið i
     def searchIntersect(self, interval):
         self._searchIntersect(interval, self.root)
 
-    # Usage:    t.searchIntersect(i)
-    # Before:   t is an object of type tree, i is an interval
-    # After:    All intervals in t that intersect i have been added to resultToPrint
+    # Notkun: t._searchIntersect(i, n)
+    # Fyrir: t er tré. i er heiltölubil, n er nóða í t
+    # Eftir: Búið er að finna allar nóður í t sem skerast á við bilið i
     def _searchIntersect(self, interval, node):
         if interval[0] <= node.interval[1] and node.interval[0] <= interval[1]:
             self.resultToPrint.append(node.interval)
@@ -163,10 +180,10 @@ class Tree:
         if node.right != None:
             self._searchIntersect(interval, node.right)
 
-    # Usage:    t.printOutput()
-    # Before:   t is an object of type tree
-    # After:    The contents of the global variable resultToPrint have been printed
-    #           onto standar output
+    # Notkun: t.printOutput()
+    # Fyrir: t er tré
+    # Eftir: Innihald t.resultToPrint hafa verið prentuð út á staðalúttak.
+    #        Innihaldi t.resultToPrint hefur verið eytt.
     def printOutput(self):
         stringToPrint = ""
         if self.resultToPrint == []:
@@ -179,7 +196,10 @@ class Tree:
             print stringToPrint
             self.resultToPrint = []
 
-    def count_children(self, node):
+    # Notkun: t.countChildren(n)
+    # Fyrir: t er tré. n er nóða í t
+    # Eftir: Búið er að finna fjölda barna n.
+    def countChildren(self, node):
         children = 0
         if node.left != None:
             children += 1
@@ -187,16 +207,22 @@ class Tree:
             children += 1
         return children
 
+    # Notkun: t.delete(i)
+    # Fyrir: t er tré. i er heiltölubil
+    # Eftir: Ef i var í t þá er búið að eyða nóðunni sem innihélt i.
     def delete(self, interval):
         self._delete(interval, self.root)
 
+    # Notkun: t._delete(i, r)
+    # Fyrir: t er tré. i er heiltölubil. r er rót t
+    # Eftir: Ef i var í t þá er búið að eyða nóðunni sem innihélt i.
     def _delete(self, interval, root):
         if root == None:
             return False
         else:
             node = self.search(interval, root)
             if node != None and node.interval == interval:
-                children = self.count_children(node)
+                children = self.countChildren(node)
                 if children == 0:
                     self.zeroLeafs(node)
                 elif children == 1:
@@ -204,6 +230,9 @@ class Tree:
                 elif children == 2:
                     self.twoLeafs(node)
 
+    # Notkun: t.zeroLeafs(n)
+    # Fyrir: t er tré. n er nóða í t sem á engin börn
+    # Eftir: Búið er að eyða n úr trénu.
     def zeroLeafs(self, node):
         parent = node.parent
         if parent != None:
@@ -215,6 +244,9 @@ class Tree:
             self.root = None
             node = None
 
+    # Notkun: t.oneLeaf(n)
+    # Fyrir: t er tré. n er nóða í t sem á eitt barn
+    # Eftir: Búið er að eyða n úr trénu.
     def oneLeaf(self, node):
         parent = node.parent
         if parent != None:
@@ -241,6 +273,9 @@ class Tree:
                 self.root = node.right
                 node = None
 
+    # Notkun: t.twoLeafs(n)
+    # Fyrir: t er tré. n er nóða í t sem á eitt barn
+    # Eftir: búið er að eyða n úr trénu
     def twoLeafs(self, node):
         successor = self.treeMin(node.right)
         node.interval = successor.interval
@@ -250,6 +285,9 @@ class Tree:
         else:
             self.zeroLeafs(successor)
 
+    # Notkun: t.treeMin(n)
+    # Fyrir: t er tré. n er nóða í t.
+    # Eftir: Búið er að finna minnsta gildið í undirtré þar sem n er rót undirtrés.
     def treeMin(self, node):
         while node.left != None:
             node = node.left
@@ -323,6 +361,9 @@ class Tree:
                 node.right = parent
                 node.parent = root_parent
 
+    # Notkun: t.splay(n)
+    # Fyrir: t er tré. n er nóða í t
+    # Eftir: n er orðin rót t. (ath. að það þýðir ekki að n sé orðið t.root)
     def splay(self, node):
         if node.parent == None:
             return

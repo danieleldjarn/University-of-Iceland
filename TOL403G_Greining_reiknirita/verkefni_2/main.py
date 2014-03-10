@@ -5,6 +5,9 @@
 from tree import Tree
 import sys
 
+# Notkun: parseInput(i)
+# Fyrir: i er inntak af staðalinntaki
+# Eftir: Búið er að greina gögnin í i og senda þau á réttan stað.
 def parseInput(input):
     t = Tree()
     for line in input:
@@ -18,18 +21,27 @@ def parseInput(input):
             line = line.replace('?', '')
             search(t, line)
 
+# Notkun: insert(t, l)
+# Fyrir: t er tré. l er lína af upplýsingum
+# Eftir: Búið er að setja gildi úr l í tréð t.
 def insert(tree, line):
     value = map(int, line.split())
     tree.insert(value)
     #tree.printDerpTree()
     #print "MIXMIXMIX"
 
+# Notkun: remove(t, l)
+# Fyrir: t er tré. l er lína af upplýsingum
+# Eftir: Búið er að fjarlægja gildi úr l í trénu t
 def remove(tree, line):
     value = map(int, line.split())
     tree.delete(value)
     #tree.printDerpTree()
     #print "DELEDLELDEL"
 
+# Notkun: search(t, l)
+# Fyrir: t er tré. l er lína af upplýsingum
+# Eftir: Búið er að finna allar nóður í t sem uppfylla skilyrðin sem eru listuð í l
 def search(tree, line):
     if line.startswith('o'):
         line = line.replace('o', '')
@@ -50,9 +62,3 @@ def search(tree, line):
 
 if __name__=="__main__":
     parseInput(sys.stdin)
-    '''t = DerpTree()
-    t.insert([4,5])
-    t.insert([2,6])
-    t.insert([0,3])
-    t.insert([2,6])
-    t.searchInclusive([4,6])'''
