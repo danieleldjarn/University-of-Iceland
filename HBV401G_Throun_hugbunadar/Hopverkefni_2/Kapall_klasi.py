@@ -88,7 +88,7 @@ class Tree(object):
         /   \ /   \       /   \ /   \       /   \ /   \ 
        x     x     x     x     x     x     x     x     x        2
      /   \ /   \ /   \ /   \ /   \ /   \ /   \ /   \ /   \ 
-	x     x     x     x     x     x     x     x     x     x     3 
+    x     x     x     x     x     x     x     x     x     x     3 
 
 	"""
 	def __init__(T, make_node=Spil_node):
