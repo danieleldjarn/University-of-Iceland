@@ -97,7 +97,6 @@ class Tree(object):
 		T.root_2    = T.nil
 		T.root_3    = T.nil
 		T.stokkur   = Stokkur()
-		T.max_depth = 3
 
 	def make_tree(T,stokkur=Stokkur()):
 		'make_tree athugar kallar fall sem býr til tréið þþaa stokkurinn sé löglegur'
