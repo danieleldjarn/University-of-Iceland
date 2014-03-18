@@ -126,6 +126,7 @@ class Tree(object):
 			T.root_3.right_p = T.nil
 
 		for i in range(0,3):
+			#Búum til hluttréið sem hefur root_1 sem rót
 			if i == 0:
 				root = T.root_1
 				root.left,  root.left.right_p  = stokkur.get_next(), root
@@ -160,6 +161,7 @@ class Tree(object):
 				T.stokkur.add(root.left.left.left)
 				T.root_1 = root
 			
+			#Búum til hluttréið sem hefur root_2 sem rót
 			elif i == 1:
 				root = T.root_2
 				root.left,  root.left.right_p  = stokkur.get_next(), root
@@ -192,6 +194,7 @@ class Tree(object):
 				T.stokkur.add(root.right.right.right)
 				T.root_2 = root
 
+			#Búum til hluttréið sem hefur root_3 sem rót
 			else:
 				root = T.root_3
 				root.left,  root.left.right_p  = stokkur.get_next(), root
