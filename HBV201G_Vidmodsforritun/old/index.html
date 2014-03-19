@@ -1,0 +1,3928 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link href="prettify.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="prettify.js"></script>
+</head>
+<body onload="prettyPrint()">
+<h1>Viðmótsforritun, vor 2011</h1>
+<h3>Hallgrímur H. Gunnarsson</h3>
+
+<h2>Stóra verkefnið</h2>
+
+<h2>Einkunn</h2>
+<p>
+Einkunn fyrir stóra verkefnið er vegið meðaltal eftirfarandi þátta:
+</p>
+<ul>
+<li>10% - Kröfulýsing</li>
+<li>5% - Storyboard</li>
+<li>70% - Forrit</li>
+<li>5% - Prófanir</li>
+<li>5% - Hugtakalíkan</li>
+<li>5% - Raunlíkan</li>
+</ul>
+<p>
+Ég er búinn að skrá allar einkunnir á Ugluna. Nemendur sem skiluðu ekki öllum þáttum hafa enn tækifæri til að senda inn þá þætti verkefnisins sem vantar (frestur fram að prófinu í Viðmótsforritun). Ég mun líklega ekki fylgjast með hólfinu mínu svo það er best að senda í tölvupósti á hallgrimurh@gmail.com. Ég uppfæri síðan einkunnir á Uglunni jafnóðum.
+</p>
+
+<h3>Hópar</h3>
+
+<p>
+Nemendur eiga að skipta sér í hópa. Það eru lágmark tveir í hóp, en hámark þrír. Sérhver nemandi í hópnum velur eitt af verkefnunum þremur: dagbók, reiknivél eða teikniforrit, en tveir í sama hóp mega ekki velja sama verkefnið.
+</p>
+
+<h3>Undirverkefni</h3>
+<p>
+Stóra verkefnið skiptist í þrjú undirverkefni: þarfagreiningu, forritun og prófun. Nemandi framkvæmir þarfagreiningu fyrir sitt verkefni og forritar það síðan. Þegar því er lokið þá lætur hann e-n annan í hópnum fá þarfagreininguna og forritið til þess að hann geti prófað það. Nemandinn prófar sjálfur forritið hjá e-m öðrum í hópnum.
+</p>
+
+<h3>Skiladagar</h3>
+
+<ol>
+<li>18. mars: Skipting í hópa og val á verkefni</li>
+<li>25. mars: Skila þarfagreiningu</li>
+<li>8. apríl: Skila forritinu sjálfu og hönnun notendaviðmóts</li>
+<li>15. apríl: Skila niðurstöðum prófana</li>
+</ol>
+
+Skiladagarnir hér fyrir ofan eru hugsaðir sem áfangaskil og eru ekki heilagir. Það má alveg skila nýjum útgáfum af fyrri skilum fyrir lokafrestinn. Þegar ég gef einkunn þá mun ég taka síðustu útgáfurnar sem ég hef fengið af sérhverju undirverkefni (þarfagreiningu/forritinu/prófunum) og leggja mat á það. Það má því alveg breyta og endurbæta þarfagreininguna eftir 18. mars og forritið eftir 8. apríl og skila því aftur, svo lengi sem því er öllu skilað fyrir 15. apríl.
+
+<h3>Einkunnir</h3>
+<p>
+Sérhver nemandi skilar inn sínu verkefni sér (þarfagreiningu + forritun + prófun fyrir annan í hópnum) og fær sér einkunn. Hópurinn skilar ekki inn sem heild og fær ekki einkunn sem heild. Einkunn verður gefin á skalanum 0-10.
+</p>
+
+<h3>Dæmatímar</h3>
+
+Dæmatímarnir næstu þrjár vikur verða nýttir sem stoðtímar. Nemendur geta komið og spurt kennara um atriði sem vefjast fyrir þeim, fengið aðstoð með vandamál, o.s.frv. Síðasti kennsludagur er þriðjudaginn 19. apríl. 
+
+<ul>
+<li>28. og 30. mars: Stoðtímar</li>
+<li>4. og 6. apríl: Stoðtímar</li>
+<li>11. og 13. apríl: Stoðtímar</li>
+<li>18. apríl: Undirbúningur fyrir próf, spurningatími</li>
+<li>19. apríl (þriðjudagur) er síðasti kennsludagur</li>
+</ul>
+
+<h3>Dæmi um notkun ImageSurface til að geyma bitmap mynd í minni</h3>
+<p>
+Í forritinu hér fyrir neðan er búið að breyta litla teikniforritinu úr verkefni 4 þannig að það sem er teiknað "festist" á myndinni. Það er gert með því að búa til ImageSurface bitmap mynd sem er geymd í minni og teikna það sem á að festast á hana. Það er hægt að búa til Cairo Context bæði fyrir DrawingArea og fyrir Surface. Við getum því bæði "teiknað á skjáinn" (DrawingArea widgetið) eða "teiknað í minni" (teiknum á ImageSurface myndina í minni).
+</p>
+
+<pre class="prettyprint">
+// Þýðing:
+// gmcs -pkg:gtk-sharp-2.0 -pkg:mono-cairo V4.cs
+// eða
+// gmcs -pkg:gtk-sharp-2.0 -r:Mono.Cairo V4.cs
+
+using Gtk;
+using Cairo;
+using System;
+
+public class V4 : Window
+{
+    delegate void DrawShape(Cairo.Context ctx, PointD start, PointD end);
+
+    ImageSurface surface;
+    DrawingArea area;
+    DrawShape Painter;
+    PointD Start, End;
+    bool MousePressed;
+
+    public V4() : base("V4")
+    {
+        surface = new ImageSurface(Format.Argb32, 500, 500);
+        area = new DrawingArea();
+
+        area.AddEvents(
+                 (int)Gdk.EventMask.PointerMotionMask
+                |(int)Gdk.EventMask.ButtonPressMask
+                |(int)Gdk.EventMask.ButtonReleaseMask);
+
+        area.ExposeEvent += OnDrawingAreaExposed;
+        area.ButtonPressEvent += OnMousePress;
+        area.ButtonReleaseEvent += OnMouseRelease;
+        area.MotionNotifyEvent += OnMouseMotion;
+
+        DeleteEvent += delegate { Application.Quit(); };
+        KeyPressEvent += OnKeyPressed;
+
+        Painter = new DrawShape(DrawLine);
+        Title = "Lína";
+
+        Start = new PointD(0.0, 0.0);
+        End = new PointD(500.0, 500.0);
+        MousePressed = false;
+
+        SetDefaultSize(500, 500);
+        SetPosition(WindowPosition.Center);
+        Add(area);
+        ShowAll();
+    }
+
+    void OnDrawingAreaExposed(object source, ExposeEventArgs args)
+    {
+        Cairo.Context ctx;
+
+        using (ctx = Gdk.CairoHelper.Create(area.GdkWindow))
+        {
+            ctx.Source = new SurfacePattern(surface);
+            ctx.Paint();
+        }
+
+        if (MousePressed)
+        {
+            using (ctx = Gdk.CairoHelper.Create(area.GdkWindow))
+            {
+                Painter(ctx, Start, End);
+            }
+        }
+    }
+
+    void OnKeyPressed(object source, KeyPressEventArgs args)
+    {
+        switch (args.Event.Key)
+        {
+            case Gdk.Key.l:
+            case Gdk.Key.L:
+                Painter = new DrawShape(DrawLine);
+                Title = "Lína";
+                break;
+            case Gdk.Key.r:
+            case Gdk.Key.R:
+                Painter = new DrawShape(DrawRectangle);
+                Title = "Rétthyrningur";
+                break;
+            case Gdk.Key.s:
+            case Gdk.Key.S:
+                Painter = new DrawShape(DrawEllipse);
+                Title = "Sporbaugur";
+                break;
+        }
+    }
+
+    void OnMousePress(object source, ButtonPressEventArgs args)
+    {
+        Start.X = args.Event.X;
+        Start.Y = args.Event.Y;
+
+        End.X = args.Event.X;
+        End.Y = args.Event.Y;
+
+        MousePressed = true;
+        area.QueueDraw();
+    }
+
+    void OnMouseRelease(object source, ButtonReleaseEventArgs args)
+    {
+        End.X = args.Event.X;
+        End.Y = args.Event.Y;
+
+        MousePressed = false;
+
+        using (Context ctx = new Context(surface))
+        {
+            Painter(ctx, Start, End);
+        }
+
+        area.QueueDraw();
+    }
+
+    void OnMouseMotion(object source, MotionNotifyEventArgs args)
+    {
+        if (MousePressed)
+        {
+            End.X = args.Event.X;
+            End.Y = args.Event.Y;
+            area.QueueDraw();
+        }
+    }
+
+    // Notkun: V4.DrawLine(ctx, start, end);
+    // Eftir:  Búið er að teikna með ctx línu frá punktinum start 
+    //         að punktinum end.
+    public static void DrawLine(Cairo.Context ctx, PointD start, PointD end)
+    {
+        ctx.MoveTo(start);
+        ctx.LineTo(end);
+        ctx.Stroke();
+    }
+
+    // Notkun: V4.DrawRectangle(ctx, start, end);
+    // Eftir:  Búið er að teikna með ctx rétthyrning sem hefur hornpunkt
+    //         start og mótlægan hornpunkt end.
+    public static void DrawRectangle(Cairo.Context ctx, PointD start, PointD end)
+    {
+        double width = end.X - start.X;
+        double height = end.Y - start.Y;
+
+        ctx.Rectangle(start, width, height);
+        ctx.Stroke();
+    }
+
+    // Notkun: V4.DrawEllipse(ctx, start, end);
+    // Eftir:  Búið er að teikna með ctx sporbaug sem afmarkast af rétthyrningi
+    //         með hornpunkt start og mótlægan hornpunkt end.
+    //
+    // Heimild: http://www.cairographics.org/manual/cairo-Paths.html#cairo-arc
+    //
+    public static void DrawEllipse(Cairo.Context ctx, PointD start, PointD end)
+    {
+        double width = Math.Abs(start.X - end.X);
+        double height = Math.Abs(start.Y - end.Y);
+        double xcenter = start.X + (end.X - start.X) / 2.0;
+        double ycenter = start.Y + (end.Y - start.Y) / 2.0;
+
+        ctx.Save();
+        ctx.Translate(xcenter, ycenter);
+        ctx.Scale(width/2.0, height/2.0);
+        ctx.Arc(0.0, 0.0, 1.0, 0.0, 2*Math.PI);
+        ctx.Restore();
+        ctx.Stroke();
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new V4();
+        Application.Run();
+    }
+}
+
+</pre>
+
+<h3>Dæmi um einfalt ComboBox í C# + Gtk</h3>
+<pre class="prettyprint">
+// Dæmi um einfalt Gtk ComboBox
+//
+// Þýðing:
+// gmcs -pkg:gtk-sharp-2.0 Example.cs
+// Keyrsla:
+// mono Example.exe
+
+using Gtk;
+using System;
+
+public class Example : Window
+{
+    private ComboBox combo;
+
+    public Example() : base("Example")
+    {
+        SetDefaultSize(250, 200);
+        SetPosition(WindowPosition.Center);
+
+        combo = ComboBox.NewText();
+
+        combo.AppendText("A");
+        combo.AppendText("B");
+        combo.AppendText("C");
+
+        combo.Realized += delegate {
+
+            // Select option no. 1, ("B"), as default
+            combo.Active = 1;
+        };
+
+        combo.Changed += OnComboBoxChanged;
+
+        Add (combo);
+        ShowAll();
+    }
+
+    void OnComboBoxChanged (object source, EventArgs args)
+    {
+        Console.WriteLine("OnComboBoxChanged: ActiveNo=" + combo.Active + ", ActiveText=" + combo.ActiveText);
+    }
+
+    public static void Main(string[] args)
+    {
+        Application.Init();
+        new Example();
+        Application.Run();
+    }
+}
+</pre>
+
+<h3>Dæmi um AES dulkóðun í C#</h3>
+<pre class="prettyprint">
+// Dæmi um AES dulkóðun
+//
+// Þýðing:
+// gmcs AES.cs
+// Keyrsla:
+// mono AES.exe
+
+using System;
+using System.Text;
+using System.IO;
+using System.Security.Cryptography;
+
+public class AES
+{
+    public static byte[] Encrypt(byte[] clearData, byte[] Key, byte[] IV) 
+    { 
+        MemoryStream ms = new MemoryStream(); 
+
+        Rijndael alg = Rijndael.Create(); 
+        alg.Key = Key; 
+        alg.IV = IV; 
+
+        CryptoStream cs = new CryptoStream(ms, alg.CreateEncryptor(), CryptoStreamMode.Write); 
+        cs.Write(clearData, 0, clearData.Length); 
+        cs.Close(); 
+
+        byte[] encryptedData = ms.ToArray();
+        return encryptedData; 
+    }
+
+    public static string Encrypt(string clearText, string Password, string Salt)
+    { 
+        byte[] clearBytes = Encoding.Unicode.GetBytes(clearText); 
+        byte[] salt = Encoding.Unicode.GetBytes(Salt); 
+
+        Rfc2898DeriveBytes rdb = new Rfc2898DeriveBytes(Password, salt);
+        SymmetricAlgorithm algorithm = new AesCryptoServiceProvider();
+
+        byte[] key = rdb.GetBytes(algorithm.KeySize / 8);
+        byte[] iv =  rdb.GetBytes(algorithm.BlockSize / 8);
+
+        byte[] encryptedData = Encrypt(clearBytes, key, iv);
+
+        return Convert.ToBase64String(encryptedData); 
+    }
+
+    public static byte[] Decrypt(byte[] cipherData, byte[] Key, byte[] IV) 
+    { 
+        MemoryStream ms = new MemoryStream(); 
+
+        Rijndael alg = Rijndael.Create(); 
+        alg.Key = Key; 
+        alg.IV = IV; 
+
+        CryptoStream cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write); 
+        cs.Write(cipherData, 0, cipherData.Length); 
+        cs.Close(); 
+
+        byte[] decryptedData = ms.ToArray(); 
+        return decryptedData; 
+    }
+
+    public static string Decrypt(string cipherText, string Password, string Salt)
+    { 
+        byte[] cipherBytes = Convert.FromBase64String(cipherText); 
+        byte[] salt = Encoding.Unicode.GetBytes(Salt);
+
+        Rfc2898DeriveBytes rdb = new Rfc2898DeriveBytes(Password, salt);
+        SymmetricAlgorithm algorithm = new AesCryptoServiceProvider();
+
+        byte[] key = rdb.GetBytes(algorithm.KeySize / 8);
+        byte[] iv =  rdb.GetBytes(algorithm.BlockSize / 8);
+
+        byte[] decryptedData = Decrypt(cipherBytes, key, iv);
+
+        return Encoding.Unicode.GetString(decryptedData); 
+    }
+
+    public static void Main(string[] args)
+    {
+        string password = "secret";
+        string data = "secret data";
+        string salt = "abcdef";
+
+        string encrypted = Encrypt(data, password, salt);
+
+        Console.WriteLine(encrypted);
+
+        string decrypted = Decrypt(encrypted, password, salt);
+
+        Console.WriteLine(decrypted);
+    }
+}
+</pre>
+
+<h3>Dæmi um ofansækna infix reiknivél í C#</h3>
+<pre class="prettyprint">
+// Dæmi um infix reiknivél
+//
+// Þýðing:
+// gmcs Formula.cs
+// Keyrsla:
+// mono Formula.exe
+
+using System;
+using System.IO;
+using System.Text;
+
+// Mállýsing á n.k. EBNF sniði:
+// F -&gt; L { ("+" | "-") L }
+// L -&gt; T { ("*" | "/") T }
+// T -&gt; tala | "(" F ")"
+
+public class Formula
+{
+    // Notkun: x = F(r);
+    // Fyrir:  Næsti stafur í r er fyrsti stafur í löglegri formúlu
+    // Eftir:  Búið er að lesa formúluna og næsti stafur er stafurinn
+    //         á eftir formúlunni. x inniheldur útkomuna úr formúlunni.
+    public static double F(StreamReader reader)
+    {
+        while (reader.Peek() == '\n')
+            reader.Read();
+
+        double x = L(reader);
+
+        while (true)
+        {
+            // Búið er að lesa einn eða fleiri liði og samanlögð
+            // útkoma þeirra er í x.
+
+            if (reader.Peek() == '+')
+            {
+                reader.Read();
+                x += L(reader);
+            }
+            else if (reader.Peek() == '-')
+            {
+                reader.Read();
+                x -= L(reader);
+            }
+            else
+                return x;
+        }
+    }
+
+    // Notkun: x = L(r);
+    // Fyrir:  Næsti stafur í r er fyrsti stafur í löglegum lið
+    // Eftir:  Búið er að lesa liðinn og næsti stafur er stafurinn
+    //         á eftir liðnum. x inniheldur útkomuna úr liðnum.
+    public static double L(StreamReader reader)
+    {
+        double x = T(reader);
+
+        while (true)
+        {
+            // Búið er að lesa einn eða fleiri þátt og er margfölduð
+            // og deild útkoma þeirra í x.
+
+            if (reader.Peek() == '*')
+            {
+                reader.Read();
+                x *= T(reader);
+            }
+            else if (reader.Peek() == '/')
+            {
+                reader.Read();
+                x /= T(reader);
+            }
+            else
+                return x;
+        }
+    }
+
+    // Notkun: x = T(r);
+    // Fyrir:  Næsti stafur í r er fyrsti stafur í löglegum þætti
+    // Eftir:  Búið er að lesa þáttinn og næsti stafur er stafurinn
+    //         á eftir þættinum. x inniheldur útkomuna úr þættinum.
+    public static double T(StreamReader reader)
+    {
+        if (reader.Peek() == '(')
+        {
+            reader.Read();
+
+            double x = F(reader);
+
+            if (reader.Peek() != ')')
+            {
+                Console.Error.WriteLine("Villa: Bjóst við aðgerð eða ')', fann '" + (char)reader.Peek() + "'.");
+                Environment.Exit(0);
+            }
+
+            reader.Read();
+
+            return x;
+        }
+
+        if (!Char.IsDigit((char)reader.Peek()) &amp;&amp; (char)reader.Peek() != '.')
+        {
+            Console.Error.WriteLine("Villa: Bjóst við tölustaf eða '(', fann '" + (char)reader.Peek() + "'.");
+            Environment.Exit(0);
+        }
+
+        return D(reader);
+    }
+
+    // Notkun: x = D(r);
+    // Fyrir:  Næsti stafur í r er fyrsti stafur í löglegri tölu
+    // Eftir:  Búið er að lesa töluna og næsti stafur er stafurinn
+    //         á eftir tölunni. x inniheldur töluna.
+    public static double D(StreamReader reader)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        while (true)
+        {
+            char c = (char)reader.Peek();
+
+            if (!Char.IsDigit(c))
+                break;
+
+            sb.Append(c);
+            reader.Read();
+        }
+
+        if (reader.Peek() != '.')
+            return Double.Parse(sb.ToString());
+
+        reader.Read();
+        sb.Append('.');
+
+        while (true)
+        {
+            char c = (char)reader.Peek();
+
+            if (!Char.IsDigit(c))
+                break;
+
+            sb.Append(c);
+            reader.Read();
+        }
+
+        if (sb.Length == 1)
+            return 0.0;
+
+        return Double.Parse(sb.ToString());
+    }
+
+    public static void Main(string[] args)
+    {
+        Stream inputStream = Console.OpenStandardInput();
+        StreamReader r = new StreamReader(inputStream);
+
+        while (!r.EndOfStream)
+        {
+            Console.WriteLine(F(r));
+        }
+    }
+}
+
+</pre>
+
+<h3>Dæmi um Menu í C#</h3>
+<pre class="prettyprint">
+// Þýðing:
+// gmcs -pkg:gtk-sharp-2.0 MenuExample.cs
+
+using Gtk;
+using System;
+
+public class MenuExample : Window
+{
+    public MenuExample() : base("Menu example")
+    {
+        DeleteEvent += delegate { Application.Quit(); };
+
+        MenuBar mainMenu = new MenuBar();
+   
+        AccelGroup aGroup = new AccelGroup();
+        AddAccelGroup(aGroup);
+   
+        Menu fileMenu = new Menu();
+        MenuItem menuItem = new MenuItem("_File");
+        menuItem.Submenu = fileMenu;
+        mainMenu.Append(menuItem);
+   
+        menuItem = new ImageMenuItem(Stock.Quit, aGroup);
+        menuItem.Activated += delegate { Application.Quit(); };
+        fileMenu.Append(menuItem);
+
+        VBox vbox = new VBox();
+
+        vbox.PackStart(mainMenu, false, false, 0);
+
+        SetDefaultSize(500, 500);
+        SetPosition(WindowPosition.Center);
+
+        Add(vbox);
+        ShowAll();
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new MenuExample();
+        Application.Run();
+    }
+}
+</pre>
+
+<h3>Dæmi um Login glugga í Java + Swing</h3>
+
+<pre class="prettyprint">
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
+
+public class Login extends JFrame
+{
+    public Login()
+    {
+        super("Example");
+
+        JButton btn = new JButton("Login");
+        btn.addActionListener(new LoginAction());
+
+        add(btn);
+    }
+
+    private class LoginAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            LoginDialog dialog = new LoginDialog(Login.this);
+            dialog.setVisible(true);
+
+            System.out.println("Username: " + dialog.getUsername());
+            System.out.println("Password: " + dialog.getPassword());
+        }
+    }
+
+    public static void main(String[] args)
+    {
+        JFrame frame = new Login();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setSize(300, 100);
+        frame.setVisible(true);
+    }
+}
+
+class LoginDialog extends JDialog
+{
+    private JTextField username;
+    private JPasswordField password;
+
+    private JButton btnLogin;
+    private JButton btnCancel;
+
+    public LoginDialog(Frame parent)
+    {
+        super(parent, "Login", true);
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        username = new JTextField(20);
+        password = new JPasswordField(20);
+
+        panel.add(username, BorderLayout.NORTH);
+        panel.add(password, BorderLayout.SOUTH);
+        panel.setBorder(new LineBorder(Color.GRAY));
+
+        btnLogin = new JButton("Login");
+
+        btnLogin.addActionListener(
+            new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    dispose();
+                }
+            }
+        );
+
+        btnCancel = new JButton("Cancel");
+        btnCancel.addActionListener(
+            new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    dispose();
+                }
+            }
+        );
+
+        JPanel buttons = new JPanel();
+
+        buttons.add(btnLogin);
+        buttons.add(btnCancel);
+
+        getContentPane().add(panel, BorderLayout.CENTER);
+        getContentPane().add(buttons, BorderLayout.PAGE_END);
+
+        pack();
+        setResizable(false);
+        setLocationRelativeTo(parent);
+    }
+
+    public String getUsername()
+    {
+        return username.getText().trim();
+    }
+
+    public String getPassword()
+    {
+        return new String(password.getPassword());
+    }
+}
+</pre>
+
+<h3>Dæmi um Login glugga í C# + Gtk#</h3>
+
+<ul>
+<li>Lesefni: Monodoc fyrir <a href="http://www.go-mono.com/docs/index.aspx?link=T:Gtk.Dialog">Gtk.Dialog</a></li>
+</ul>
+
+<pre class="prettyprint">
+// Þýðing:
+// gmcs -pkg:gtk-sharp-2.0 Login.cs
+// Keyrsla:
+// mono Login.exe
+
+using System;
+using Gtk;
+
+public class Example : Window
+{
+    public Example() : base("Example")
+    {
+        Button btn = new Button ("Login");
+
+        btn.Clicked += OnLogin;
+        DeleteEvent += OnDeleteEvent;
+
+        Add (btn);
+
+        ShowAll();
+    }
+
+    protected void OnLogin(object source, EventArgs a)
+    {
+        LoginDialog dialog = new LoginDialog();
+
+        ResponseType rsp = (ResponseType)dialog.Run();
+
+        if (rsp == ResponseType.Ok)
+        {
+            Console.WriteLine("Username:" + dialog.Username);
+            Console.WriteLine("Password:" + dialog.Password);
+        }
+        else
+        {
+            Console.WriteLine("Login cancelled.");
+        }
+
+        dialog.Destroy();
+    }
+
+    protected void OnDeleteEvent(object source, DeleteEventArgs a)
+    {
+        Application.Quit();
+        a.RetVal = true;
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new Example();
+        Application.Run();
+    }
+}
+
+class LoginDialog : Dialog
+{
+    private Entry username;
+    private Entry password;
+
+    public LoginDialog() : base("Login", null, DialogFlags.Modal)
+    {
+        username = new Entry();
+        password = new Entry();
+
+        VBox.Spacing = 6;
+
+        VBox.Add(username);
+        VBox.Add(password);
+
+        AddButton("Login", ResponseType.Ok);
+        AddButton("Cancel", ResponseType.Close);
+
+        ShowAll();
+    }
+
+    public string Username
+    {
+        get
+        {
+            return username.Text;
+        }
+    }
+
+    public string Password
+    {
+        get
+        {
+            return password.Text;
+        }
+    }
+}
+</pre>
+
+<h3>Dæmi um glugga í C# + Gtk# sem býr til nýjan glugga og lokar sjálfum sér</h3>
+<pre class="prettyprint">
+// Þýðing:
+// gmcs -pkg:gtk-sharp-2.0 CreateAndDestroy.cs
+// Keyrsla:
+// mono CreateAndDestroy.exe
+
+using System;
+using Gtk;
+
+public class First : Window
+{
+    public First() : base("First window")
+    {
+        Button create = new Button ("Create second window and close this one");
+
+        create.Clicked += OnMakeWindow;
+        DeleteEvent += OnDeleteEvent;
+
+        Add(create);
+        ShowAll();
+    }
+
+    void OnMakeWindow(object source, EventArgs args)    
+    {
+        new Second();
+        Destroy();
+    }
+
+    protected void OnDeleteEvent(object source, DeleteEventArgs a)
+    {
+        Application.Quit();
+        a.RetVal = true;
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new First();
+        Application.Run();
+    }
+}
+
+class Second : Window
+{
+    public Second() : base("Second window")
+    {
+        Button close = new Button ("Close this window");
+
+        close.Clicked += delegate { Application.Quit(); };
+        DeleteEvent += OnDeleteEvent;
+
+        Add(close);
+        ShowAll();
+    }
+
+    protected void OnDeleteEvent(object source, DeleteEventArgs a)
+    {
+        Application.Quit();
+        a.RetVal = true;
+    }
+
+}
+</pre>
+
+
+<h2>Skilaverkefni 6 (Java+Swing dagbók)</h2>
+<ul>
+<li><a href="g6.pdf">Forritunarglósur 6</a></li>
+<li><a href="http://www.toedter.com/en/jcalendar/index.html">Vefsíða um JCalendar component</a></li>
+<li><a href="jcalendar-1.3.3.jar">JCalendar component (JAR)</a></li>
+<li><a href="Value.java">Value.java</a></li>
+<li><a href="Value.html">Value API skjölun (javadoc)</a></li>
+</ul>
+Næsta forritunarverkefni á að skila fyrir kl. 16 föstudaginn 18. mars. Verkefnið felst í að skrifa forrit í Java+Swing sem er einföld dagbók (sama forrit og þið gerðuð í C# + Gtk nema núna í Java + Swing). Skilið verkefninu útprentuðu í hólf nr. 27 í VR-2 ásamt skjáskoti af forritinu í keyrslu. Munið að merkja dæmahóp.
+
+<h3>Lausn sem notar Netstrings (length-encoding)</h3>
+<pre class="prettyprint">
+// Þýðing í Linux/MacOS X:
+//   javac -cp ".:jcalendar-1.3.3.jar" Diary.java
+
+// Þýðing í Windows:
+//   javac -cp ".;jcalendar-1.3.3.jar" Diary.java
+//
+// Keyrsla í Linux/MacOS X:
+//   java -cp ".:jcalendar-1.3.3.jar" Diary
+//
+// Keyrsla í Windows:
+//   java -cp ".;jcalendar-1.3.3.jar" Diary
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import java.text.SimpleDateFormat;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import com.toedter.calendar.JCalendar;
+
+public class Diary extends JFrame
+{
+    private HashMap&lt;String,String&gt; days;
+    private String date;
+    private JTextArea textarea;
+    private JCalendar calendar;
+    private SimpleDateFormat sdf;
+
+    Diary()
+    {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        calendar = new JCalendar();
+        sdf = new SimpleDateFormat("yyyy-MM-dd");
+        textarea = new JTextArea();
+
+        JScrollPane scroll = new JScrollPane();
+
+        date = GetCalendarDate();
+        days = Load();
+
+        calendar.addPropertyChangeListener(new OnDaySelected());
+        addWindowListener(new OnWindowEvent());
+
+        textarea.setColumns(20);
+        textarea.setRows(5);
+
+        scroll.setViewportView(textarea);
+
+        panel.add(calendar, BorderLayout.NORTH);
+        panel.add(scroll, BorderLayout.CENTER);
+
+        setContentPane(panel);
+    }
+
+    private class OnWindowEvent extends WindowAdapter
+    {
+        public void windowClosing(WindowEvent evt)
+        {
+            if (!GetDayText(date).equals(textarea.getText()))
+            {
+                SetDayText(date,textarea.getText());
+                Save(days);
+            }
+        }
+    }
+
+    private class OnDaySelected implements PropertyChangeListener
+    {
+        public void propertyChange(PropertyChangeEvent evt)
+        {
+            SetDate(GetCalendarDate());
+        }
+    }
+
+    private String GetCalendarDate()
+    {
+        Date d = calendar.getDate();
+        return sdf.format(d);
+    }
+
+    private String GetDayText(String date)
+    {
+        if (!days.containsKey(date))
+            return "";
+
+        return days.get(date);
+    }
+
+    private void SetDayText(String date, String text)
+    {
+        if (text == null || text.equals(""))
+            days.remove(date);
+        else
+            days.put(date, text);
+    }
+
+    private void SetDate(String newdate)
+    {
+        if (newdate.equals(date))
+            return;
+
+        if (date != null &amp;&amp; !GetDayText(date).equals(textarea.getText()))
+        {
+            SetDayText(date, textarea.getText());
+            Save(days);
+        }
+
+        date = newdate;
+        textarea.setText(GetDayText(date));
+    }
+
+    private static HashMap&lt;String,String&gt; Load()
+    {
+        HashMap&lt;String,String&gt; days = new HashMap&lt;String,String&gt;();
+
+        File f = new File("Diary.dat");
+
+        if (!f.exists())
+            return days;
+
+        try
+        {
+            FileInputStream fs = new FileInputStream("Diary.dat");
+
+            while (fs.available() &gt; 0)
+            {
+                String k = Netstring.read(fs);
+                String v = Netstring.read(fs);
+
+                days.put(k,v);
+            }
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error reading Diary.dat: " + e.getMessage());
+        }
+
+        return days;
+    }
+
+    private static void Save(HashMap&lt;String,String&gt; days)
+    {
+        try
+        {
+            FileOutputStream fs = new FileOutputStream("Diary.dat");
+
+            for (Map.Entry&lt;String, String&gt; e: days.entrySet())
+            {
+                Netstring.write(fs, e.getKey());
+                Netstring.write(fs, e.getValue());
+            }
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error writing Diary.dat: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args)
+    {
+        try 
+        {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e) {}
+
+        JFrame frame = new Diary();
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+    }
+}
+
+class Netstring
+{
+    public static class EncodingException extends IOException {};
+
+    public static String read(InputStream s) throws IOException
+    {
+        StringBuffer sb = new StringBuffer();
+
+        while (s.available() &gt; 0)
+        {
+            int v = s.read();
+            if (v &lt; 0)
+                break;
+            char c = (char)v;
+            if (c == ':')
+                break;
+            if (!Character.isDigit(c))
+                throw new EncodingException();
+
+            sb.append(c);
+        }
+
+        if (s.available() == 0)
+            throw new EncodingException();
+
+        if (sb.length() == 0)
+            throw new EncodingException();
+
+        int length = Integer.parseInt(sb.toString());
+
+        if (length == 0)
+        {
+            char c = (char)s.read();
+
+            if (c != ',')
+                throw new EncodingException();
+
+            return "";
+        }
+
+        byte[] buffer = new byte[length];
+        int n = 0;
+
+        while (n &lt; length &amp;&amp; s.available() &gt; 0)
+        {
+            int k = s.read(buffer, n, length-n);
+            if (k == 0)
+                break;
+            n += k;
+        }
+
+        if (n &lt; length)
+            throw new EncodingException();
+
+        if ((char)s.read() != ',')
+            throw new EncodingException();
+
+        return new String(buffer);
+    }
+
+    public static void write(OutputStream w, String s) throws IOException
+    {
+        byte[] bytes = s.getBytes();
+
+        String length = Integer.toString(bytes.length);
+
+        w.write(length.getBytes());
+        w.write(':');
+        w.write(s.getBytes());
+        w.write(',');
+    }
+}
+</pre>
+
+<h3>Lausn sem notar möppu og eina skrá fyrir hvern dag</h3>
+<pre class="prettyprint">
+// Þýðing í Linux/MacOS X:
+//   javac -cp ".:jcalendar-1.3.3.jar" Diary.java
+
+// Þýðing í Windows:
+//   javac -cp ".;jcalendar-1.3.3.jar" Diary.java
+//
+// Keyrsla í Linux/MacOS X:
+//   java -cp ".:jcalendar-1.3.3.jar" Diary
+//
+// Keyrsla í Windows:
+//   java -cp ".;jcalendar-1.3.3.jar" Diary
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.FileReader;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+
+import com.toedter.calendar.JCalendar;
+
+public class Diary extends JFrame
+{
+    private static String DIARY_PATH = "dagbok";
+
+    private String date;
+    private JTextArea textarea;
+    private JCalendar calendar;
+    private SimpleDateFormat sdf;
+
+    Diary() throws Exception
+    {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        calendar = new JCalendar();
+        sdf = new SimpleDateFormat("yyyy-MM-dd");
+        textarea = new JTextArea();
+
+        JScrollPane scroll = new JScrollPane();
+
+        date = GetCalendarDate();
+
+        File dir = new File(DIARY_PATH);
+
+        if (!dir.exists())
+        {
+            if (!dir.mkdir())
+                throw new Exception("Error creating data directory");
+        }
+
+        calendar.addPropertyChangeListener(new OnDaySelected());
+        addWindowListener(new OnWindowEvent());
+
+        textarea.setColumns(20);
+        textarea.setRows(5);
+
+        scroll.setViewportView(textarea);
+
+        panel.add(calendar, BorderLayout.NORTH);
+        panel.add(scroll, BorderLayout.CENTER);
+
+        setContentPane(panel);
+    }
+
+    private class OnWindowEvent extends WindowAdapter
+    {
+        public void windowClosing(WindowEvent evt)
+        {
+            if (!GetDayText(date).equals(textarea.getText()))
+            {
+                SetDayText(date,textarea.getText());
+            }
+        }
+    }
+
+    private class OnDaySelected implements PropertyChangeListener
+    {
+        public void propertyChange(PropertyChangeEvent evt)
+        {
+            SetDate(GetCalendarDate());
+        }
+    }
+
+    private String GetCalendarDate()
+    {
+        Date d = calendar.getDate();
+        return sdf.format(d);
+    }
+
+    private String GetDayText(String date)
+    {
+        String path = DIARY_PATH + "/" + date;
+
+        File f = new File(path);
+
+        if (!f.exists())
+            return "";
+
+        int len = (int)f.length();
+        char[] b = new char[len];
+
+        try
+        {
+            FileReader r = new FileReader(f);
+            r.read(b);
+            r.close();
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error reading data for " + date + ": " + e.getMessage());
+            return "";
+        }
+
+        return new String(b);
+    }
+
+    private void SetDayText(String date, String text)
+    {
+        String path = DIARY_PATH + "/" + date;
+
+        try
+        {
+            FileWriter f = new FileWriter(path);
+            f.write(text);
+            f.close();
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error writing data for " + date + ": " + e.getMessage());
+        }
+    }
+
+    private void SetDate(String newdate)
+    {
+        if (newdate.equals(date))
+            return;
+
+        if (date != null && !GetDayText(date).equals(textarea.getText()))
+        {
+            SetDayText(date, textarea.getText());
+        }
+
+        date = newdate;
+        textarea.setText(GetDayText(date));
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        try 
+        {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e) {}
+
+        JFrame frame = new Diary();
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+    }
+}
+
+</pre>
+
+<h3>Lausn sem notar Value klasann</h3>
+<pre class="prettyprint">
+// Þýðing í Linux/MacOS X:
+//   javac -cp ".:jcalendar-1.3.3.jar" Diary.java
+
+// Þýðing í Windows:
+//   javac -cp ".;jcalendar-1.3.3.jar" Diary.java
+//
+// Keyrsla í Linux/MacOS X:
+//   java -cp ".:jcalendar-1.3.3.jar" Diary
+//
+// Keyrsla í Windows:
+//   java -cp ".;jcalendar-1.3.3.jar" Diary
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+
+import com.toedter.calendar.JCalendar;
+
+import is.hi.snorri.transport.Value;
+
+public class Diary extends JFrame
+{
+    private Value days;
+    private String date;
+    private JTextArea textarea;
+    private JCalendar calendar;
+    private SimpleDateFormat sdf;
+
+    Diary()
+    {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        calendar = new JCalendar();
+        sdf = new SimpleDateFormat("yyyy-MM-dd");
+        textarea = new JTextArea();
+
+        JScrollPane scroll = new JScrollPane();
+
+        date = GetCalendarDate();
+        days = Load();
+
+        calendar.addPropertyChangeListener(new OnDaySelected());
+        addWindowListener(new OnWindowEvent());
+
+        textarea.setColumns(20);
+        textarea.setRows(5);
+
+        scroll.setViewportView(textarea);
+
+        panel.add(calendar, BorderLayout.NORTH);
+        panel.add(scroll, BorderLayout.CENTER);
+
+        setContentPane(panel);
+    }
+
+    private class OnWindowEvent extends WindowAdapter
+    {
+        public void windowClosing(WindowEvent evt)
+        {
+            if (!GetDayText(date).equals(textarea.getText()))
+            {
+                SetDayText(date,textarea.getText());
+                Save(days);
+            }
+        }
+    }
+
+    private class OnDaySelected implements PropertyChangeListener
+    {
+        public void propertyChange(PropertyChangeEvent evt)
+        {
+            SetDate(GetCalendarDate());
+        }
+    }
+
+    private String GetCalendarDate()
+    {
+        Date d = calendar.getDate();
+        return sdf.format(d);
+    }
+
+    private String GetDayText(String date)
+    {
+        Value d = Value.makeString(date);
+        Value text = days.get(d);
+
+        if (text == null)
+            return "";
+
+        return text.asString();
+    }
+
+    private void SetDayText(String date, String text)
+    {
+        Value d = Value.makeString(date);
+
+        if (text == null || text.equals(""))
+            days.put(d, null);
+        else
+            days.put(d, Value.makeString(text));
+    }
+
+    private void SetDate(String newdate)
+    {
+        if (newdate.equals(date))
+            return;
+
+        if (date != null &amp;&amp; !GetDayText(date).equals(textarea.getText()))
+        {
+            SetDayText(date, textarea.getText());
+            Save(days);
+        }
+
+        date = newdate;
+        textarea.setText(GetDayText(date));
+    }
+
+    private static Value Load()
+    {
+        Value days;
+        try
+        {
+            days = Value.loadFile("Diary.dat");
+        }
+        catch (Exception e)
+        {
+            days = Value.makeTable();
+        }
+        return days;
+    }
+
+    private static void Save(Value days)
+    {
+        try
+        {
+            Value.saveFile(days, "Diary.dat");
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error saving Diary.dat: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args)
+    {
+        try 
+        {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e) {}
+
+        JFrame frame = new Diary();
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+    }
+}
+</pre>
+
+<h2>Dæmi um notkun á JCalendar og atburðartengingar</h2>
+<p>
+Fyrst þarf að sækja <a href="jcalendar-1.3.3.jar">jcalendar-1.3.3.jar</a> skrána, sem inniheldur JCalendar eininguna innpakkaða í JAR skrá, og síðan setja hana í sömu möppu og Diary.java. Til að þýða og keyra forritið þarf að nota -cp (classpath) parameter í javac/java til að það finni jcalendar-1.3.3.jar skrána (sjá skipanir til að þýða og keyra í hausnum á forritinu hér fyrir neðan). Ef þið eruð að nota NetBeans þá þarf að fara í stillingar fyrir Project, velja Library og bæta þar við jcalendar-1.3.3.jar sem nýju library.
+</p>
+
+<pre class="prettyprint">
+// Þýðing í Linux/MacOS X:
+//   javac -cp ".:jcalendar-1.3.3.jar" Diary.java
+
+// Þýðing í Windows:
+//   javac -cp ".;jcalendar-1.3.3.jar" Diary.java
+//
+// Keyrsla í Linux/MacOS X:
+//   java -cp ".:jcalendar-1.3.3.jar" Diary
+//
+// Keyrsla í Windows:
+//   java -cp ".;jcalendar-1.3.3.jar" Diary
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
+
+import com.toedter.calendar.JCalendar;
+
+public class Diary extends JFrame
+{
+    private JCalendar calendar;
+    private SimpleDateFormat sdf;
+
+    Diary()
+    {
+        JPanel panel = new JPanel(new BorderLayout());
+
+        calendar = new JCalendar();
+        sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        calendar.addPropertyChangeListener(new OnDaySelected());
+        addWindowListener(new OnWindowEvent());
+
+        panel.add(calendar, BorderLayout.NORTH);
+
+        setContentPane(panel);
+    }
+
+    private class OnWindowEvent extends WindowAdapter
+    {
+        public void windowClosing(WindowEvent evt)
+        {
+            System.out.println("Window closing");
+        }
+    }
+
+    private class OnDaySelected implements PropertyChangeListener
+    {
+        public void propertyChange(PropertyChangeEvent evt)
+        {
+            Date d = calendar.getDate();
+            String date = sdf.format(d);
+
+            System.out.println("OnDaySelected=" + date);
+        }
+    }
+
+    public static void main(String[] args)
+    {
+        try 
+        {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e) {}
+
+        JFrame frame = new Diary();
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+    }
+}
+</pre>
+
+<h2>Dæmi um notkun á Value klasanum í Java</h2>
+<p>
+Fyrst þarf að sækja <a href="Value.java">Value.java</a> skrána og setja hana í undir möppuna is/hi/snorri/transport/ sem ætti að vera í sömu möppu og ValueTest.java skráin sem er hér fyrir neðan. Það er að segja, mappan ætti að líta svona út:
+
+<ul>
+<li>ValueTest.java</li>
+<li>is/</li>
+<ul>
+<li>hi/</li>
+<ul>
+<li>snorri/</li>
+<ul>
+<li>transport/</li>
+<ul>
+<li>Value.java</li>
+</ul>
+</ul>
+</ul>
+</ul>
+</ul>
+</p>
+<p>
+Skráarkerfið þarf að endurspegla pakkatréið í Java og út af því að Value klasinn er undir pakkanum "is.hi.snorri.transport" þá þarf að búa til samsvarandi möppur og setja Value.java þar undir til að java finni skrána þegar hún er notuð.
+</p>
+
+<pre class="prettyprint">
+// Þýðing:
+//   javac ValueTest.java
+// Keyrsla:
+//   java ValueTest
+
+import is.hi.snorri.transport.Value;
+
+public class ValueTest
+{
+    public static void testLoad() throws Exception
+    {
+        Value v = Value.loadFile("Diary.dat");
+
+        Value v1 = Value.makeString("2011-02-15");
+        Value v2 = Value.makeString("2011-02-16");
+        Value v3 = Value.makeString("2011-02-17");
+
+        System.out.println("2011-02-15:");
+        System.out.println(v.get(v1).asString());
+        System.out.println("2011-02-16:");
+        System.out.println(v.get(v2).asString());
+        System.out.println("2011-02-17:");
+        System.out.println(v.get(v3).asString());
+    }
+
+    public static void testSave() throws Exception
+    {
+        Value v = Value.makeTable();
+
+        Value v1 = Value.makeString("2011-02-15");
+        Value v2 = Value.makeString("2011-02-16");
+        Value v3 = Value.makeString("2011-02-17");
+
+        v.put(v1, Value.makeString("testing 15"));
+        v.put(v2, Value.makeString("testing 16"));
+        v.put(v3, Value.makeString("testing 17"));
+
+        System.out.println("2011-02-15:");
+        System.out.println(v.get(v1).asString());
+        System.out.println("2011-02-16:");
+        System.out.println(v.get(v2).asString());
+        System.out.println("2011-02-17:");
+        System.out.println(v.get(v3).asString());
+
+        Value.saveFile(v, "Diary.dat");
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        System.out.println("SAVE");
+        testSave();
+        System.out.println("LOAD");
+        testLoad();
+    }
+}
+</pre>
+
+<h2>Skilaverkefni 5 (Java+Swing: Ágiskunarleikur eða reiknivél)</h2>
+
+<ul>
+<li><a href="g6.pdf">Forritunarglósur 6</a></li>
+<li><a href="http://download.oracle.com/javase/tutorial/uiswing/layout/visual.html">A visual guide to Swing layout managers</a></li>
+</ul>
+
+Næsta forritunarverkefni á að skila fyrir kl. 16 föstudaginn 11. mars. Verkefnið felst í að skrifa forrit í Java+Swing sem er einföld reiknivél eða ágiskunarleikur. Skilið verkefninu útprentuðu í hólf nr. 27 í VR-2 ásamt skjáskoti af forritinu í keyrslu. Munið að merkja dæmahóp.
+
+<h2>Lausn á skilaverkefni 5 (Java+Swing ágiskunarleikur)</h2>
+<pre class="prettyprint">
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.util.Random;
+
+public class Guess extends JPanel
+{
+    private Random random;
+    private JTextField input;
+    private JButton guess;
+    private JButton reset;
+    private JButton exit;
+    private JLabel feedback;
+    private JLabel status;
+
+    private int attempts;
+    private int secret;
+
+    public Guess()
+    {
+        super();
+
+        input = new JTextField(20);
+
+        guess = new JButton("Guess");
+        reset = new JButton("New Game");
+        exit = new JButton("Exit");
+
+        feedback = new JLabel("");
+        status = new JLabel("");
+
+        random = new Random();
+
+        attempts = 0;
+        secret = random.nextInt(100);
+        status.setText("Number of attempts: " + attempts);
+
+        AbstractAction guessAction = new GuessAction();
+
+        input.addActionListener(guessAction);
+        guess.addActionListener(guessAction);
+
+        reset.addActionListener(new ResetAction());
+        exit.addActionListener(new ExitAction());
+
+        setLayout(new GridLayout(0,1));
+
+        add(feedback);
+        add(status);
+        add(input);
+        add(guess);
+        add(reset);
+        add(exit);
+    }
+
+    private class GuessAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            String s = input.getText();
+
+            input.setText("");
+
+            if (s.equals(""))
+                return;
+
+            int n;
+
+            try
+            {
+                n = Integer.parseInt(s);
+            }
+            catch (NumberFormatException e)
+            {
+                feedback.setText("Invalid number");
+                return;
+            }
+
+            if (n == secret)
+            {
+                feedback.setText("You won!");
+                return;
+            }
+
+            if (n &lt; secret)
+                feedback.setText(n + " is too low");
+            else
+                feedback.setText(n + " is too high");
+
+            attempts++;
+            status.setText("Number of attempts: " + attempts);
+        }
+    }
+
+    private class ResetAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            attempts = 0;
+            secret = random.nextInt(100);
+
+            status.setText("Number of attempts: " + attempts);
+            feedback.setText("");
+        }
+    }
+
+    private class ExitAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            System.exit(0);
+        }
+    }
+
+    public static void main(String[] args)
+    {
+        try 
+        {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e) {}
+
+        JFrame frame = new JFrame("Guessing game");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.add(new Guess(), BorderLayout.CENTER);
+
+        frame.pack();
+        frame.setVisible(true);
+    }
+}
+
+</pre>
+
+<h2>Lausn á skilaverkefni 5 (Java+Swing reiknivél)</h2>
+<pre class="prettyprint">
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.util.LinkedList;
+import java.util.Iterator;
+
+public class Calculator extends JPanel
+{
+    private LinkedList&lt;Double&gt; stack;
+    private JTextField input;
+    private JButton one, two, three, four, five;
+    private JButton six, seven, eight, nine, zero;
+    private JButton plus, minus, mul, div;
+    private JButton dup, pop;
+
+    public Calculator()
+    {
+        super();
+
+        stack = new LinkedList&lt;Double&gt;();
+
+        Font font = new Font("Verdana", Font.PLAIN, 18);
+
+        input = new JTextField(10);
+
+        input.setFont(font);
+        input.setEditable(false);
+
+        zero  = new JButton("0");
+        one   = new JButton("1");
+        two   = new JButton("2");
+        three = new JButton("3");
+        four  = new JButton("4");
+        five  = new JButton("5");
+        six   = new JButton("6");
+        seven = new JButton("7");
+        eight = new JButton("8");
+        nine  = new JButton("9");
+        plus  = new JButton("+");
+        minus = new JButton("-");
+        mul   = new JButton("*");
+        div   = new JButton("/");
+        pop   = new JButton("pop");
+        dup   = new JButton("dup");
+
+        zero.addActionListener(new InputAction(0.0));
+        one.addActionListener(new InputAction(1.0));
+        two.addActionListener(new InputAction(2.0));
+        three.addActionListener(new InputAction(3.0));
+        four.addActionListener(new InputAction(4.0));
+        five.addActionListener(new InputAction(5.0));
+        six.addActionListener(new InputAction(6.0));
+        seven.addActionListener(new InputAction(7.0));
+        eight.addActionListener(new InputAction(8.0));
+        nine.addActionListener(new InputAction(9.0));
+
+        plus.addActionListener(new PlusAction());
+        minus.addActionListener(new MinusAction());
+        mul.addActionListener(new MultiplyAction());
+        div.addActionListener(new DivideAction());
+        pop.addActionListener(new PopAction());
+        dup.addActionListener(new DupAction());
+
+        setLayout(new BorderLayout());
+
+        JPanel pad = new JPanel();
+        pad.setLayout(new GridLayout(4,4));
+
+        pad.add(seven);
+        pad.add(eight);
+        pad.add(nine);
+        pad.add(div);
+
+        pad.add(four);
+        pad.add(five);
+        pad.add(six);
+        pad.add(mul);
+
+        pad.add(one);
+        pad.add(two);
+        pad.add(three);
+        pad.add(minus);
+
+        pad.add(zero);
+        pad.add(dup);
+        pad.add(pop);
+        pad.add(plus);
+
+        add(input, BorderLayout.NORTH);
+        add(pad, BorderLayout.CENTER);
+    }
+
+    private class InputAction extends AbstractAction
+    {
+        private double number;
+
+        public InputAction(double number)
+        {
+            this.number = number;
+        }
+
+        public void actionPerformed(ActionEvent evt)
+        {
+            stack.push(number);
+            updateDisplay();
+        }
+    }
+
+    private class PlusAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            if (stack.size() &lt; 2)
+                return;
+
+            double a = stack.pop();
+            double b = stack.pop();
+
+            stack.push(a+b);
+
+            updateDisplay();
+        }
+    }
+
+    private class MinusAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            if (stack.size() &lt; 2)
+                return;
+
+            double b = stack.pop();
+            double a = stack.pop();
+
+            stack.push(a-b);
+
+            updateDisplay();
+        }
+    }
+
+    private class MultiplyAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            if (stack.size() &lt; 2)
+                return;
+
+            double a = stack.pop();
+            double b = stack.pop();
+
+            stack.push(a*b);
+
+            updateDisplay();
+        }
+    }
+
+    private class DivideAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            if (stack.size() &lt; 2)
+                return;
+
+            double a = stack.pop();
+            double b = stack.pop();
+
+            stack.push(a/b);
+
+            updateDisplay();
+        }
+    }
+
+    private class PopAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            if (stack.isEmpty())
+                return;
+
+            stack.pop();
+            updateDisplay();
+        }
+    }
+
+    private class DupAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            if (stack.isEmpty())
+                return;
+
+            stack.push(stack.peek());
+            updateDisplay();
+        }
+    }
+
+    private void updateDisplay()
+    {
+        Iterator&lt;Double&gt; it = stack.descendingIterator();
+        StringBuffer sb = new StringBuffer();
+
+        while (it.hasNext())
+        {
+            sb.append(it.next());
+            sb.append(" ");
+        }
+
+        input.setText(sb.toString());
+    }
+
+    public static void main(String[] args)
+    {
+        try 
+        {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e) {}
+
+        JFrame frame = new JFrame("Calculator");
+
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setContentPane(new Calculator());
+        frame.setSize(250, 200);
+        frame.setPreferredSize(frame.getSize());
+        frame.pack();
+        frame.setVisible(true);
+    }
+}
+</pre>
+
+<h3>Dæmi um Java+Swing innsláttarsvæði og notkun innri klasa í úrvinnslu atburða</h3>
+<pre class="prettyprint">
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+public class Entry extends JPanel
+{
+    private JTextField textField;
+
+    public Entry()
+    {
+        super();
+
+        textField = new JTextField(20);
+        textField.addActionListener(new InputAction());
+
+        add(textField);
+    }
+
+    private class InputAction extends AbstractAction
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+            System.out.println(textField.getText());
+        }
+    }
+
+    public static void main(String[] args)
+    {
+        JFrame frame = new JFrame("Entry Test");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.add(new Entry(), BorderLayout.CENTER);
+
+        frame.pack();
+        frame.setVisible(true);
+    }
+}
+</pre>
+
+<h2>Lausn á skilaverkefni 4 (Teikniforrit)</h2>
+<pre class="prettyprint">
+// Þýðing:
+// gmcs -pkg:gtk-sharp-2.0 -pkg:mono-cairo V4.cs
+
+using Gtk;
+using Cairo;
+using System;
+
+public class V4 : Window
+{
+    delegate void DrawShape(Cairo.Context ctx, PointD start, PointD end);
+
+    DrawingArea area;
+    DrawShape Painter;
+    PointD Start, End;
+    bool MousePressed;
+
+    public V4() : base("V4")
+    {
+        area = new DrawingArea();
+
+        area.AddEvents(
+                 (int)Gdk.EventMask.PointerMotionMask
+                |(int)Gdk.EventMask.ButtonPressMask
+                |(int)Gdk.EventMask.ButtonReleaseMask);
+
+        area.ExposeEvent += OnDrawingAreaExposed;
+        area.ButtonPressEvent += OnMousePress;
+        area.ButtonReleaseEvent += OnMouseRelease;
+        area.MotionNotifyEvent += OnMouseMotion;
+
+        DeleteEvent += delegate { Application.Quit(); };
+        KeyPressEvent += OnKeyPressed;
+
+        Painter = new DrawShape(DrawLine);
+        Title = "Lína";
+
+        Start = new PointD(0.0, 0.0);
+        End = new PointD(500.0, 500.0);
+        MousePressed = false;
+
+        SetDefaultSize(500, 500);
+        SetPosition(WindowPosition.Center);
+        Add(area);
+        ShowAll();
+    }
+
+    void OnDrawingAreaExposed(object source, ExposeEventArgs args)
+    {
+        using (Cairo.Context ctx = Gdk.CairoHelper.Create(area.GdkWindow))
+        {
+            Painter(ctx, Start, End);
+        }
+    }
+
+    void OnKeyPressed(object source, KeyPressEventArgs args)
+    {
+        switch (args.Event.Key)
+        {
+            case Gdk.Key.l:
+            case Gdk.Key.L:
+                Painter = new DrawShape(DrawLine);
+                Title = "Lína";
+                break;
+            case Gdk.Key.r:
+            case Gdk.Key.R:
+                Painter = new DrawShape(DrawRectangle);
+                Title = "Rétthyrningur";
+                break;
+            case Gdk.Key.s:
+            case Gdk.Key.S:
+                Painter = new DrawShape(DrawEllipse);
+                Title = "Sporbaugur";
+                break;
+        }
+    }
+
+    void OnMousePress(object source, ButtonPressEventArgs args)
+    {
+        Start.X = args.Event.X;
+        Start.Y = args.Event.Y;
+
+        End.X = args.Event.X;
+        End.Y = args.Event.Y;
+
+        MousePressed = true;
+        area.QueueDraw();
+    }
+
+    void OnMouseRelease(object source, ButtonReleaseEventArgs args)
+    {
+        End.X = args.Event.X;
+        End.Y = args.Event.Y;
+
+        MousePressed = false;
+        area.QueueDraw();
+    }
+
+    void OnMouseMotion(object source, MotionNotifyEventArgs args)
+    {
+        if (MousePressed)
+        {
+            End.X = args.Event.X;
+            End.Y = args.Event.Y;
+            area.QueueDraw();
+        }
+    }
+
+    // Notkun: V4.DrawLine(ctx, start, end);
+    // Eftir:  Búið er að teikna með ctx línu frá punktinum start 
+    //         að punktinum end.
+    public static void DrawLine(Cairo.Context ctx, PointD start, PointD end)
+    {
+        ctx.MoveTo(start);
+        ctx.LineTo(end);
+        ctx.Stroke();
+    }
+
+    // Notkun: V4.DrawRectangle(ctx, start, end);
+    // Eftir:  Búið er að teikna með ctx rétthyrning sem hefur hornpunkt
+    //         start og mótlægan hornpunkt end.
+    public static void DrawRectangle(Cairo.Context ctx, PointD start, PointD end)
+    {
+        double width = end.X - start.X;
+        double height = end.Y - start.Y;
+
+        ctx.Rectangle(start, width, height);
+        ctx.Stroke();
+    }
+
+    // Notkun: V4.DrawEllipse(ctx, start, end);
+    // Eftir:  Búið er að teikna með ctx sporbaug sem afmarkast af rétthyrningi
+    //         með hornpunkt start og mótlægan hornpunkt end.
+    //
+    // Heimild: http://www.cairographics.org/manual/cairo-Paths.html#cairo-arc
+    //
+    public static void DrawEllipse(Cairo.Context ctx, PointD start, PointD end)
+    {
+        double width = Math.Abs(start.X - end.X);
+        double height = Math.Abs(start.Y - end.Y);
+        double xcenter = start.X + (end.X - start.X) / 2.0;
+        double ycenter = start.Y + (end.Y - start.Y) / 2.0;
+
+        ctx.Save();
+        ctx.Translate(xcenter, ycenter);
+        ctx.Scale(width/2.0, height/2.0);
+        ctx.Arc(0.0, 0.0, 1.0, 0.0, 2*Math.PI);
+        ctx.Restore();
+        ctx.Stroke();
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new V4();
+        Application.Run();
+    }
+}
+</pre>
+
+<h2>Skilaverkefni 4 (Teikniforrit)</h2>
+
+<ul>
+<li><a href="g4.pdf">Forritunarglósur 4</a></li>
+</ul>
+
+Næsta forritunarverkefni á að skila fyrir kl. 16 föstudaginn 25. febrúar. Lýsing á verkefninu er í Forritunarglósum 4 hjá Snorra. Skilið verkefninu útprentuðu í hólf nr. 27 í VR-2 ásamt skjáskoti af forritinu í keyrslu. Munið að merkja dæmahóp.
+
+<h3>Þýðing með csc</h3>
+<p>
+Ef þið notið Microsoft C# csc þýðandann í verkefninu frekar en Mono (gmcs) þá er skipunin:
+<pre class="prettyprint">
+csc -r:gtk-sharp.dll -r:Mono.Cairo.dll -r:gdk-sharp.dll -r:glib-sharp.dll -r:atk-sharp.dll V4.cs
+</pre>
+
+<h3>Compile villa við Cairo tengingu</h3>
+<p>
+Ef þið fáið svona villu:
+</p>
+
+<pre class="prettyprint">
+rfc1918:verkefni3 sveinnflokigumundsson$ gmcs -pkg:gtk-sharp-2.0 -pkg:mono-cairo Shapes.cs
+Shapes.cs(27,9): error CS0029: Cannot implicitly convert type `Cairo.Context' to `Cairo.Context'
+Shapes.cs(27,9): The type `Cairo.Context' has two conflicting definitions, one comes from `Mono.Cairo, Version=2.0.0.0, Culture=neutral, 
+  PublicKeyToken=0738eb9f132ed756' and the other from `Mono.Cairo, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756' (in the previous error)
+Internal(1,1): The type `Cairo.Context' has two conflicting definitions, one comes from `Mono.Cairo, Version=2.0.0.0, Culture=neutral, 
+  PublicKeyToken=0738eb9f132ed756' and the other from `Mono.Cairo, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756' (in the previous error)
+Compilation failed: 1 error(s), 0 warnings
+</pre>
+
+<p>
+þá skuluði sleppa "-pkg:mono-cairo" og nota í staðinn "-r:Mono.Cairo". Það er villa í pkg-config skránni í e-m útgáfum fyrir mono-cairo sem lætur það vísa á 1.0 útgáfuna af Cairo en ekki 2.0 útgáfuna.
+</p>
+
+<h3>Einfalt dæmi um forrit sem býr til Cairo teikniflöt og teiknar línu, rétthyrning og sporbaug</h3>
+<p>
+Þið megið stela DrawEllipse fallinu sem teiknar sporbaug og nota það í ykkar forriti. Til að halda forritinu fallegu þá væri síðan ráðlegt að útbúa svipuð föll og DrawEllipse til að teikna línu og rétthyrning, þ.e. DrawLine og DrawRectangle. Öll föllin ættu að taka inn sömu viðföng, þ.e. Cairo teikniflöt (ctx) ásamt tveimur punktum (PointD).
+</p>
+
+<h4>Shapes.cs</h4>
+<pre class="prettyprint">
+// Þýðing:
+// gmcs -pkg:gtk-sharp-2.0 -pkg:mono-cairo Shapes.cs
+
+using Gtk;
+using Cairo;
+using System;
+
+public class Shapes : Window
+{
+    DrawingArea area;
+
+    public Shapes() : base("Drawing shapes")
+    {
+        area = new DrawingArea();
+        area.ExposeEvent += OnDrawingAreaExposed;
+
+        DeleteEvent += delegate { Application.Quit(); };
+
+        SetDefaultSize(500, 500);
+        SetPosition(WindowPosition.Center);
+        Add(area);
+        ShowAll();
+    }
+
+    void OnDrawingAreaExposed(object source, ExposeEventArgs args)
+    {
+        using (Cairo.Context ctx = Gdk.CairoHelper.Create(area.GdkWindow))
+        {
+            // Rétthyrningur
+            // ctx.Rectangle(x,y,width,height);
+            ctx.Rectangle(20, 20, 120, 80);
+            ctx.Stroke();
+
+            // Lína
+            //                    ax   ay
+            ctx.MoveTo(new PointD(0.0, 0.0));
+            //                    bx   by
+            ctx.LineTo(new PointD(50.0,50.0));
+            ctx.Stroke();
+
+            // Sporbaugur
+            DrawEllipse(ctx, new PointD(50.0, 50.0), new PointD(150.0, 200.0));
+        }
+    }
+
+    // Notkun: DrawEllipse(ctx, start, end);
+    // Eftir:  Búið er að teikna með ctx sporbaug sem afmarkast af rétthyrningi
+    //         með hornpunkt start og mótlægan hornpunkt end.
+    //
+    // Heimild: http://www.cairographics.org/manual/cairo-Paths.html#cairo-arc
+    //
+    public static void DrawEllipse(Cairo.Context ctx, PointD start, PointD end)
+    {
+        double width = Math.Abs(start.X - end.X);
+        double height = Math.Abs(start.Y - end.Y);
+        double xcenter = start.X + (end.X - start.X) / 2.0;
+        double ycenter = start.Y + (end.Y - start.Y) / 2.0;
+
+        ctx.Save();
+        ctx.Translate(xcenter, ycenter);
+        ctx.Scale(width/2.0, height/2.0);
+        ctx.Arc(0.0, 0.0, 1.0, 0.0, 2*Math.PI);
+        ctx.Restore();
+        ctx.Stroke();
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new Shapes();
+        Application.Run();
+    }
+}
+</pre>
+
+<h3>Einfalt dæmi um forrit sem býr til Cairo teikniflöt og tengir Press, Release og Motion músaratburðina við föll sem prenta út hnit bendilsins</h3>
+<p>
+Til að útfæra virknina í ykkar forriti þá þurfið þið að búa til tilviksbreytu sem heldur utan um það hvort músarhnappnum sé haldið niðri. Ef breytan er sett sem true í OnMousePress og sem false í OnMouseRelease, þá er hægt að nota hana í OnMouseMotion til að vita hvort hnappnum sé haldið niðri þegar músin er hreyfð.
+</p>
+<p>
+Ennfremur þá þarf að búa til tvær tilviksbreytur sem halda utan um upphafspunkt og endapunkt fyrir núverandi mynd. Upphafspunkturinn fær nýtt gildi í OnMousePress (gott að láta endapunktinn líka fá sama gildi þar, enda á líka að hreinsa myndina í OnMousePress). Endapunkturinn fær nýtt gildi í OnMouseRelease og hann fær einnig nýtt gildi í OnMouseMotion ef músarhnappnum er haldið niðri.
+</p>
+<p>
+Það á að teikna myndina upp á nýtt þegar punktunum er breytt. Það er hægt að teikna myndina með því að kalla í QueueDraw() aðferðina á Cairo teikniflötin, þ.e. area.QueueDraw(). Breytingar á Cairo teiknifletinum (ctx köllin) verða ekki sýnilegar fyrr en það er kallað í QueueDraw(). Kall í QueueDraw veldur Expose atburði á teiknifletinum og í Expose handler-inum ætti að teikna myndina miðað við valda aðferð og gildi punktanna.
+</p>
+
+<h4>MouseEvents.cs</h4>
+<pre class="prettyprint">
+// Þýðing:
+// gmcs -pkg:gtk-sharp-2.0 -pkg:mono-cairo MouseEvents.cs
+
+using Gtk;
+using Cairo;
+using System;
+
+public class MouseEvents : Window
+{
+    DrawingArea area;
+
+    public MouseEvents() : base("Mouse Events")
+    {
+        area = new DrawingArea();
+
+        area.AddEvents(
+                 (int)Gdk.EventMask.PointerMotionMask
+                |(int)Gdk.EventMask.ButtonPressMask
+                |(int)Gdk.EventMask.ButtonReleaseMask);
+
+        area.ButtonPressEvent += OnMousePress;
+        area.ButtonReleaseEvent += OnMouseRelease;
+        area.MotionNotifyEvent += OnMouseMotion;
+
+        DeleteEvent += delegate { Application.Quit(); };
+
+        SetDefaultSize(500, 500);
+        SetPosition(WindowPosition.Center);
+        Add(area);
+        ShowAll();
+    }
+
+    void OnMousePress(object source, ButtonPressEventArgs args)
+    {
+        Console.WriteLine("OnMousePress: X="+args.Event.X+",Y="+args.Event.Y);
+    }
+
+    void OnMouseRelease(object source, ButtonReleaseEventArgs args)
+    {
+        Console.WriteLine("OnMouseRelease: X="+args.Event.X+",Y="+args.Event.Y);
+    }
+
+    void OnMouseMotion(object source, MotionNotifyEventArgs args)
+    {
+        Console.WriteLine("OnMouseMotion: X="+args.Event.X+",Y="+args.Event.Y);
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new MouseEvents();
+        Application.Run();
+    }
+}
+</pre>
+
+<h3>Dæmi um val á teikniaðferð: char tilviksbreyta + switch/case</h3>
+<p>
+Til að muna hvaða teikniaðferð er valin þá er ein leið að skilgreina char tilviksbreytu. Sú breyta myndi innihalda bókstaf 'L' ef lína er valin, 'R' ef rétthyrningur er valinn og 'S' ef sporbaugur er valinn. Gildi breytunnar væri uppfært í OnKeyPress handler sem yrði tengt við KeyPressEvent atburð gluggans. Sá handler myndi athuga hvort args.Event.Key væri Gdk.Key.l, Gdk.Key.r eða Gdk.Key.s (sjá reiknivél) og gefa tilviksbreytunni gildi eftir því.
+</p>
+<p>
+OnDrawingAreaExposed sem sér um að teikna myndina á Cairo teikniflötinn myndi síðan athuga gildi tilviksbreytunnar og eftir því hvort hún sé 'L', 'R' eða 'S' þá kallar það í samsvarandi DrawLine, DrawRectangle eða DrawEllipse fall innan using(Cairo.Context .. ) klausunnar (sjá forritsdæmi sem teiknar að ofan). Viðföng í kallið væru Cairo contextið ásamt tilviksbreytunum sem innihalda punktana tvo (sjá texta um músaratburði að ofan).
+</p>
+
+<h3>Dæmi um val á teikniaðferð: delegates</h3>
+<p>
+Til að muna hvaða teikniaðferð er valin þá er önnur leið að skilgreina delegate tag fyrir teikniaðferðirnar og tilviksbreytu af því tagi. Það yrði gert á eftirfarandi hátt:
+</p>
+<pre class="prettyprint">
+public class V4 : Window
+{
+    // ...
+
+    // Delegate tag
+    delegate void DrawShape(Cairo.Context ctx, PointD start, PointD end);
+
+    // Eintak af slíkri breytu. Hún getur vísað á aðferð sem uppfyllir
+    // type-signatureið að ofan, þ.e. tekur inn sömu viðföng af sömu tögum.
+    DrawShape Painter;
+
+    // ...
+
+    public V4() : base("V4")
+    {
+        // Látum Painter vísa á DrawEllipse fallið
+        Painter = new DrawShape(DrawEllipse);
+
+        // Gætum núna kallað á DrawEllipse með því að nota Painter
+        // Ef ctx er Cairo.Context og start/end eru punktar af taginu PointD
+        // þá mætti kalla á þetta svona:
+        //   Painter(ctx, start, end);
+
+        // Í OnKeyPress handler-inum þá myndirðu vísa Painter á rétt
+        // fall (DrawEllipse, DrawLine eða DrawRectangle) eftir því
+        // hvort það er ýtt á hnappinn l, r eða s.
+    }
+
+    // ...
+
+    // Notkun: V4.DrawEllipse(ctx, start, end);
+    // Eftir:  Búið er að teikna með ctx sporbaug sem afmarkast af rétthyrningi
+    //         með hornpunkt start og mótlægan hornpunkt end.
+    //
+    // Heimild: http://www.cairographics.org/manual/cairo-Paths.html#cairo-arc
+    //
+    public static void DrawEllipse(Cairo.Context ctx, PointD start, PointD end)
+    {
+        double width = Math.Abs(start.X - end.X);
+        double height = Math.Abs(start.Y - end.Y);
+        double xcenter = start.X + (end.X - start.X) / 2.0;
+        double ycenter = start.Y + (end.Y - start.Y) / 2.0;
+
+        ctx.Save();
+        ctx.Translate(xcenter, ycenter);
+        ctx.Scale(width/2.0, height/2.0);
+        ctx.Arc(0.0, 0.0, 1.0, 0.0, 2*Math.PI);
+        ctx.Restore();
+        ctx.Stroke();
+    }
+}
+</pre>
+
+<h2>Lausn á skilaverkefni 3 (Dagbók)</h2>
+<h3>Lausn sem notar möppu og eina skrá fyrir hvern dag</h3>
+<pre class="prettyprint">
+// Þýðing:
+// gmcs -pkg:gtk-sharp-2.0 V3.cs
+
+using System;
+using System.IO;
+using System.Text;
+using Gtk;
+
+public class V3 : Gtk.Window
+{
+    private string date = null;
+    private TextView textview = null;
+    private Calendar calendar = null;
+
+    // Fastayrðing gagna:
+    //  * Strengbreytan date inniheldur dagsetningu þess dags sem valinn
+    //    er hverju sinni.
+    //  * Dagatalið calendar er með alla daga merkta sem hafa texta
+    //  * Textasvæðið textview inniheldur texta þess dags sem valinn
+    //    er hverju sinni
+    //  * Skráarsafnið "dagbok" í núverandi möppu inniheldur texta allra
+    //    daga í dagatalinu. Skráin "dagbok/áááámmdd" inniheldur texta
+    //    þess dags.
+    //  * Ef skrá er ekki til þá hefur sá dagur engan texta.
+    //
+    // Fastayrðingin er sönn eftir að glugginn er smíðaður,
+    // og síðan eftir sérhverja opinbera aðgerð.
+
+    public V3() : base("Diary")
+    {
+        calendar = new Calendar();
+        textview = new TextView();
+
+        VBox vbox = new VBox();
+        vbox.Add(calendar);
+
+        ScrolledWindow sw = new ScrolledWindow();
+        sw.Add(textview);
+
+        vbox.Add(sw);
+
+        calendar.DaySelected += OnCalendarDaySelected;
+        DeleteEvent += OnDeleteEvent;
+
+        if (!Directory.Exists("dagbok"))
+            Directory.CreateDirectory("dagbok");
+
+        date = GetCalendarDate();
+        textview.Buffer.Text = GetDayText(date);
+        MakeDaysBold();
+
+        Add(vbox);
+        ShowAll();
+    }
+
+    protected void OnDeleteEvent (object sender, DeleteEventArgs a)
+    {
+        if( GetDayText(date)!=textview.Buffer.Text )
+        {
+            SetDayText(date,textview.Buffer.Text);
+        }
+        Application.Quit ();
+        a.RetVal = true;
+    }
+
+    private static string Today()
+    {
+        DateTime d = DateTime.Now;
+        return string.Format("{0:D4}{1:D2}{2:D2}",d.Year,d.Month,d.Day);
+    }
+
+    private string GetCalendarDate()
+    {
+        DateTime d = calendar.Date;
+        return string.Format("{0:D4}{1:D2}{2:D2}",d.Year,d.Month,d.Day);
+    }
+
+    private string GetDayText( string date )
+    {
+        if (!File.Exists("dagbok/" + date))
+            return "";
+
+        FileStream fs = new FileStream("dagbok/" + date, FileMode.Open);
+        StreamReader s = new StreamReader(fs);
+
+        string t = s.ReadToEnd();
+
+        s.Close();
+        fs.Close();
+
+        return t;
+    }
+
+    private void SetDayText( string date, string text )
+    {
+        if( text==null || text=="" )
+        {
+            File.Delete("dagbok/" + date);
+            return;
+        }
+
+        StreamWriter w = new StreamWriter("dagbok/" + date);
+        w.Write(text);
+        w.Close();
+    }
+
+    private void MakeDaysBold()
+    {
+        string d = GetCalendarDate().Substring(0,6);
+        for( uint i=1 ; i!=32 ; i++ )
+        {
+            string k = d+String.Format("{0:D2}",i);
+            string path = "dagbok/" + k;
+            if (File.Exists(path))
+                calendar.MarkDay(i);
+            else
+                calendar.UnmarkDay(i);
+        }
+    }
+
+    public void SetDate( string newdate )
+    {
+        if( newdate==date ) return;
+        if( date!=null && GetDayText(date)!=textview.Buffer.Text )
+        {
+            SetDayText(date,textview.Buffer.Text);
+        }
+        date = newdate;
+        int y,m,d;
+        y = Int32.Parse(date.Substring(0,4));
+        m = Int32.Parse(date.Substring(4,2));
+        d = Int32.Parse(date.Substring(6,2));
+        System.DateTime dt = new System.DateTime(y,m,d);
+        calendar.Date = dt;
+        textview.Buffer.Text = GetDayText(date);
+        MakeDaysBold();
+    }
+
+    protected virtual void OnCalendarDaySelected (object sender, System.EventArgs e)
+    {
+        SetDate(GetCalendarDate());
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new V3();
+        Application.Run();
+    }
+}
+</pre>
+
+<h3>Lausn sem notar Netstrings (length-encoding)</h3>
+
+<pre class="prettyprint">
+// Þýðing:
+// gmcs -pkg:gtk-sharp-2.0 V3.cs
+
+using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Text;
+using Gtk;
+
+public class V3 : Gtk.Window
+{
+    private Dictionary&lt;string,string&gt; days;
+    private string date = null;
+    private TextView textview = null;
+    private Calendar calendar = null;
+
+    // Fastayrðing gagna:
+    //  * Breytan days inniheldur töflu þar sem days["áááámmdd"] er texti
+    //    dagsetningarinnar.
+    //  * Enginn texti dags í töflunni er "" (tómi strengurinn), heldur
+    //    er það skilgreint sem enginn texti.
+    //  * Strengbreytan date inniheldur dagsetningu þess dags sem valinn
+    //    er hverju sinni.
+    //  * Dagatalið calendar er með alla daga merkta sem hafa texta
+    //  * Textasvæðið textview inniheldur texta þess dags sem valinn
+    //    er hverju sinni
+    //  * Skráin "Diary.dat" í heimamöppu notandans inniheldur texta allra
+    //    daga í dagatalinu. Skráin er uppfærð þegar forritinu er lokað
+    //    og þegar nýr dagur er valinn.
+    //
+    // Fastayrðingin er sönn eftir að glugginn er smíðaður,
+    // og síðan eftir sérhverja opinbera aðgerð.
+
+    public V3() : base("Diary")
+    {
+        calendar = new Calendar();
+        textview = new TextView();
+
+        ScrolledWindow sw = new ScrolledWindow();
+        sw.Add(textview);
+
+        VBox vbox = new VBox();
+        vbox.Add(calendar);
+        vbox.Add(sw);
+
+        calendar.DaySelected += OnCalendarDaySelected;
+        DeleteEvent += OnDeleteEvent;
+
+        date = GetCalendarDate();
+        days = Load();
+        textview.Buffer.Text = GetDayText(date);
+        MakeDaysBold();
+
+        Add(vbox);
+        ShowAll();
+    }
+
+    protected void OnDeleteEvent (object sender, DeleteEventArgs a)
+    {
+        if( GetDayText(date)!=textview.Buffer.Text )
+        {
+            SetDayText(date,textview.Buffer.Text);
+            Save(days);
+        }
+        Application.Quit ();
+        a.RetVal = true;
+    }
+
+    private static Dictionary&lt;string,string&gt; Load()
+    {
+        Dictionary&lt;string,string&gt; days = new Dictionary&lt;string,string&gt;();
+
+        if (!File.Exists("Diary.dat"))
+            return days;
+
+        FileStream fs = new FileStream("Diary.dat", FileMode.Open);
+        StreamReader s = new StreamReader(fs);
+
+        while (!s.EndOfStream)
+        {
+            string k = Netstring.Read(s);
+            string v = Netstring.Read(s);
+
+            days[k] = v;
+        }
+
+        s.Close();
+        fs.Close();
+
+        return days;
+    }
+
+    private static void Save( Dictionary&lt;string,string&gt; days )
+    {
+        StreamWriter w = new StreamWriter("Diary.dat");
+
+        foreach (KeyValuePair&lt;string,string&gt; pair in days)
+        {
+            Netstring.Write(w, pair.Key);
+            Netstring.Write(w, pair.Value);
+        }
+
+        w.Close();
+    }
+
+    private static string Today()
+    {
+        DateTime d = DateTime.Now;
+        return string.Format("{0:D4}{1:D2}{2:D2}",d.Year,d.Month,d.Day);
+    }
+
+    private string GetCalendarDate()
+    {
+        DateTime d = calendar.Date;
+        return string.Format("{0:D4}{1:D2}{2:D2}",d.Year,d.Month,d.Day);
+    }
+
+    private string GetDayText( string date )
+    {
+        if (!days.ContainsKey(date))
+            return "";
+        return days[date];
+    }
+
+    private void SetDayText( string date, string text )
+    {
+        if( text==null || text=="" )
+            days.Remove(date);
+        else
+            days[date] = text;
+    }
+
+    private void MakeDaysBold()
+    {
+        string d = GetCalendarDate().Substring(0,6);
+        for( uint i=1 ; i!=32 ; i++ )
+        {
+            string k = d+String.Format("{0:D2}",i);
+            if (days.ContainsKey(k))
+                calendar.MarkDay(i);
+            else
+                calendar.UnmarkDay(i);
+        }
+    }
+
+    public void SetDate( string newdate )
+    {
+        if( newdate==date ) return;
+        if( date!=null &amp;&amp; GetDayText(date)!=textview.Buffer.Text )
+        {
+            SetDayText(date,textview.Buffer.Text);
+            Save(days);
+        }
+        date = newdate;
+        int y,m,d;
+        y = Int32.Parse(date.Substring(0,4));
+        m = Int32.Parse(date.Substring(4,2));
+        d = Int32.Parse(date.Substring(6,2));
+        System.DateTime dt = new System.DateTime(y,m,d);
+        calendar.Date = dt;
+        textview.Buffer.Text = GetDayText(date);
+        MakeDaysBold();
+    }
+
+    protected virtual void OnCalendarDaySelected (object sender, System.EventArgs e)
+    {
+        SetDate(GetCalendarDate());
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new V3();
+        Application.Run();
+    }
+}
+
+class Netstring
+{
+    public class EncodingException : ApplicationException {};
+
+    public static string Read(StreamReader s)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        while (!s.EndOfStream)
+        {
+            int v = s.Read();
+            if (v &lt; 0)
+                break;
+            char c = Convert.ToChar(v);
+            if (c == ':')
+                break;
+            if (!Char.IsDigit(c))
+                throw new EncodingException();
+
+            sb.Append(c);
+        }
+
+        if (s.EndOfStream)
+            throw new EncodingException();
+
+        if (sb.Length == 0)
+            throw new EncodingException();
+
+        int length = int.Parse(sb.ToString());
+
+        if (length == 0)
+        {
+            if (Convert.ToChar(s.Read()) != ',')
+                throw new EncodingException();
+
+            return "";
+        }
+
+        char[] buffer = new char[length];
+        int n = 0;
+
+        while (n &lt; length &amp;&amp; !s.EndOfStream)
+        {
+            int k = s.Read(buffer, n, length-n);
+            if (k == 0)
+                break;
+            n += k;
+        }
+
+        if (n &lt; length)
+            throw new EncodingException();
+
+        if (Convert.ToChar(s.Read()) != ',')
+            throw new EncodingException();
+
+        return new string(buffer);
+    }
+
+    public static void Write(StreamWriter w, string s)
+    {
+        w.Write(s.Length);
+        w.Write(":");
+        w.Write(s);
+        w.Write(",");
+    }
+}
+</pre>
+
+<h3>Lausn sem notar Value klasann</h3>
+
+<ul>
+<li><a href="Value.cs">Value.cs</a></li>
+</ul>
+
+<pre class="prettyprint">
+// Þýðing:
+// gmcs -pkg:gtk-sharp-2.0 V3.cs Value.cs
+
+using System;
+using System.IO;
+using Gtk;
+using Transport;
+
+public class V3 : Gtk.Window
+{
+    private Value days = null;
+    private string date = null;
+    private TextView textview = null;
+    private Calendar calendar = null;
+
+    // Fastayrðing gagna:
+    //  * Breytan days inniheldur töflu þar sem days["áááámmdd"] er texti
+    //    dagsetningarinnar.
+    //  * Enginn texti dags í töflunni er "" (tómi strengurinn), heldur
+    //    er það skilgreint sem enginn texti.
+    //  * Strengbreytan date inniheldur dagsetningu þess dags sem valinn
+    //    er hverju sinni.
+    //  * Dagatalið calendar er með alla daga merkta sem hafa texta
+    //  * Textasvæðið textview inniheldur texta þess dags sem valinn
+    //    er hverju sinni
+    //  * Skráin "Diary.dat" í heimamöppu notandans inniheldur texta allra
+    //    daga í dagatalinu. Skráin er uppfærð þegar forritinu er lokað
+    //    og þegar nýr dagur er valinn.
+    //
+    // Fastayrðingin er sönn eftir að glugginn er smíðaður,
+    // og síðan eftir sérhverja opinbera aðgerð.
+
+    public V3() : base("Diary")
+    {
+        calendar = new Calendar();
+        textview = new TextView();
+
+        ScrolledWindow sw = new ScrolledWindow();
+        sw.Add(textview);
+
+        VBox vbox = new VBox();
+        vbox.Add(calendar);
+        vbox.Add(sw);
+
+        calendar.DaySelected += OnCalendarDaySelected;
+        DeleteEvent += OnDeleteEvent;
+
+        date = GetCalendarDate();
+        days = Load();
+        textview.Buffer.Text = GetDayText(date);
+        MakeDaysBold();
+
+        Add(vbox);
+        ShowAll();
+    }
+
+    protected void OnDeleteEvent (object sender, DeleteEventArgs a)
+    {
+        if( GetDayText(date)!=textview.Buffer.Text )
+        {
+            SetDayText(date,textview.Buffer.Text);
+            Save(days);
+        }
+        Application.Quit ();
+        a.RetVal = true;
+    }
+
+    private static Value Load()
+    {
+        Value days;
+        try
+        {
+            days = Value.LoadFile("Diary.dat");
+        }
+        catch( Exception )
+        {
+            days = Value.MakeTable();
+        }
+        return days;
+    }
+
+    private static void Save( Value days )
+    {
+        Value.SaveFile(days, "Diary.dat");
+    }
+
+    private static string Today()
+    {
+        DateTime d = DateTime.Now;
+        return string.Format("{0:D4}{1:D2}{2:D2}",d.Year,d.Month,d.Day);
+    }
+
+    private string GetCalendarDate()
+    {
+        DateTime d = calendar.Date;
+        return string.Format("{0:D4}{1:D2}{2:D2}",d.Year,d.Month,d.Day);
+    }
+
+    private string GetDayText( string date )
+    {
+        Value text = days[date];
+        if( text==null ) return "";
+        return text.AsString;
+    }
+
+    private void SetDayText( string date, string text )
+    {
+        if( text==null || text=="" )
+            days[date] = null;
+        else
+            days[date] = text;
+    }
+
+    private void MakeDaysBold()
+    {
+        string d = GetCalendarDate().Substring(0,6);
+        for( uint i=1 ; i!=32 ; i++ )
+        {
+            string k = d+String.Format("{0:D2}",i);
+            if( days[k] != null )
+                calendar.MarkDay(i);
+            else
+                calendar.UnmarkDay(i);
+        }
+    }
+
+    public void SetDate( string newdate )
+    {
+        if( newdate==date ) return;
+        if( date!=null && GetDayText(date)!=textview.Buffer.Text )
+        {
+            SetDayText(date,textview.Buffer.Text);
+            Save(days);
+        }
+        date = newdate;
+        int y,m,d;
+        y = Int32.Parse(date.Substring(0,4));
+        m = Int32.Parse(date.Substring(4,2));
+        d = Int32.Parse(date.Substring(6,2));
+        System.DateTime dt = new System.DateTime(y,m,d);
+        calendar.Date = dt;
+        textview.Buffer.Text = GetDayText(date);
+        MakeDaysBold();
+    }
+
+    protected virtual void OnCalendarDaySelected (object sender, System.EventArgs e)
+    {
+        SetDate(GetCalendarDate());
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new V3();
+        Application.Run();
+    }
+}
+</pre>
+
+<h2>Skilaverkefni 3 (Dagbók)</h2>
+
+<ul>
+<li><a href="g3.pdf">Forritunarglósur 3</a></li>
+<li><a href="http://www.go-mono.com/docs/index.aspx?link=T:Gtk.Calendar">Monodoc skjölun fyrir Gtk.Calendar</a></li>
+</ul>
+
+Næsta forritunarverkefni á að skila fyrir kl. 16 föstudaginn 18. febrúar. Lýsing á verkefninu er í Forritunarglósum 3 hjá Snorra. Skilið verkefninu útprentuðu í hólf nr. 27 í VR-2 ásamt skjáskoti af forritinu í keyrslu. Munið að merkja dæmahóp.
+
+<h3>Einfalt dæmi um save/load með Value klasanum</h3>
+<p>
+Hér fyrir neðan er forrit sem býr til eintak af Value töflu og skráir þrjú gildi í hana. Við notum dagsetningar á forminu "YYYY-MM-DD" sem lykla og texta sem gildi. Forritið prentar síðan út gildin sem við settum í töfluna. Að lokum vistar forritið töfluna í skrána diary.dat.
+</p>
+
+<h4>t1.cs - Save</h4>
+<pre class="prettyprint">
+using System;
+using Transport;
+
+public class t1
+{
+    public static void Main()
+    {
+        Value v = Value.MakeTable();
+
+        // Skraum thrju gildi i tofluna
+        v["2011-02-15"] = "testing 15";
+        v["2011-02-16"] = "testing 16";
+        v["2011-02-17"] = "testing 17";
+
+        // Prentum gildin ur toflunni
+        Console.WriteLine("2011-02-15:");
+        Console.WriteLine(v["2011-02-15"].AsString);
+
+        Console.WriteLine("2011-02-16:");
+        Console.WriteLine(v["2011-02-16"].AsString);
+
+        Console.WriteLine("2011-02-17:");
+        Console.WriteLine(v["2011-02-17"].AsString);
+
+        // Vistum tofluna i diary.dat
+        Value.SaveFile(v, "diary.dat");
+    }
+}
+</pre>
+
+<h4>Þýðum og keyrum forritið</h4>
+<pre class="prettyprint">
+hhg@hhg:~/gui/v3$ gmcs t1.cs Value.cs
+hhg@hhg:~/gui/v3$ mono t1.exe
+2011-02-15:
+testing 15
+2011-02-16:
+testing 16
+2011-02-17:
+testing 17
+hhg@hhg:~/gui/v3$ ls -al diary.dat
+-rw-r--r-- 1 hhg hhg 74 2011-02-17 15:55 diary.dat
+hhg@hhg:~/gui/v3$ 
+</pre>
+
+<h4>t2.cs - Load</h4>
+<p>
+Hér fyrir neðan er annað forrit. Það hleður Value töflu inn úr skránni diary.dat og prentar síðan út gildin fyrir lyklana "2011-02-15", "2011-02-16", "2011-02-17" (gildin sem við skráðum í t1.cs).
+</p>
+
+<pre class="prettyprint">
+using System;
+using Transport;
+
+public class t2
+{
+    public static void Main()
+    {
+        Value v = Value.LoadFile("diary.dat");
+
+        Console.WriteLine("2011-02-15:");
+        Console.WriteLine(v["2011-02-15"].AsString);
+
+        Console.WriteLine("2011-02-16:");
+        Console.WriteLine(v["2011-02-16"].AsString);
+
+        Console.WriteLine("2011-02-17:");
+        Console.WriteLine(v["2011-02-17"].AsString);
+    }
+}
+</pre>
+
+<h4>Þýðum og keyrum forritið</h4>
+<pre class="prettyprint">
+hhg@hhg:~/gui/v3$ gmcs t2.cs Value.cs
+hhg@hhg:~/gui/v3$ mono t2.exe
+2011-02-15:
+testing 15
+2011-02-16:
+testing 16
+2011-02-17:
+testing 17
+hhg@hhg:~/gui/v3$ ls
+</pre>
+
+<h3>Einfalt forrit sem sýnir dagatal og prentar út valdar dagsetningar</h3>
+<pre class="prettyprint">
+using Gtk;
+using System;
+
+public class V3 : Window
+{
+    public V3() : base("Diary")
+    {
+        Calendar cal = new Calendar();
+
+        VBox vbox = new VBox();
+
+        cal.DaySelected += OnDaySelected;
+
+        vbox.Add(cal);
+
+        Add(vbox);
+        ShowAll();
+    }
+
+    private void OnDaySelected(object source, EventArgs args)
+    {
+        Calendar activatedCalendar = (Calendar)source;
+        Console.WriteLine(activatedCalendar.GetDate().ToString("yyyy-MM-dd"));
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new V3();
+        Application.Run();
+    }
+}
+</pre>
+
+<h2>Lausn á skilaverkefni 2 (Leikur)</h2>
+<h3>Lausn með Glade og Gtk.Builder</h3>
+<h4>V2.ui</h4>
+<pre class="prettyprint">
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;interface&gt;
+  &lt;requires lib=&quot;gtk+&quot; version=&quot;2.16&quot;/&gt;
+  &lt;!-- interface-naming-policy project-wide --&gt;
+  &lt;object class=&quot;GtkWindow&quot; id=&quot;window1&quot;&gt;
+    &lt;child&gt;
+      &lt;object class=&quot;GtkVBox&quot; id=&quot;vbox1&quot;&gt;
+        &lt;property name=&quot;visible&quot;&gt;True&lt;/property&gt;
+        &lt;child&gt;
+          &lt;object class=&quot;GtkLabel&quot; id=&quot;lblAttempts&quot;&gt;
+            &lt;property name=&quot;visible&quot;&gt;True&lt;/property&gt;
+            &lt;property name=&quot;label&quot; translatable=&quot;yes&quot;&gt;label&lt;/property&gt;
+          &lt;/object&gt;
+          &lt;packing&gt;
+            &lt;property name=&quot;position&quot;&gt;0&lt;/property&gt;
+          &lt;/packing&gt;
+        &lt;/child&gt;
+        &lt;child&gt;
+          &lt;object class=&quot;GtkLabel&quot; id=&quot;lblFeedback&quot;&gt;
+            &lt;property name=&quot;visible&quot;&gt;True&lt;/property&gt;
+            &lt;property name=&quot;label&quot; translatable=&quot;yes&quot;&gt;label&lt;/property&gt;
+          &lt;/object&gt;
+          &lt;packing&gt;
+            &lt;property name=&quot;position&quot;&gt;1&lt;/property&gt;
+          &lt;/packing&gt;
+        &lt;/child&gt;
+        &lt;child&gt;
+          &lt;object class=&quot;GtkEntry&quot; id=&quot;entry1&quot;&gt;
+            &lt;property name=&quot;visible&quot;&gt;True&lt;/property&gt;
+            &lt;property name=&quot;can_focus&quot;&gt;True&lt;/property&gt;
+            &lt;property name=&quot;invisible_char&quot;&gt;&acirc;&cent;&lt;/property&gt;
+          &lt;/object&gt;
+          &lt;packing&gt;
+            &lt;property name=&quot;position&quot;&gt;2&lt;/property&gt;
+          &lt;/packing&gt;
+        &lt;/child&gt;
+        &lt;child&gt;
+          &lt;object class=&quot;GtkButton&quot; id=&quot;btnGuess&quot;&gt;
+            &lt;property name=&quot;label&quot; translatable=&quot;yes&quot;&gt;Guess!&lt;/property&gt;
+            &lt;property name=&quot;visible&quot;&gt;True&lt;/property&gt;
+            &lt;property name=&quot;can_focus&quot;&gt;True&lt;/property&gt;
+            &lt;property name=&quot;receives_default&quot;&gt;True&lt;/property&gt;
+          &lt;/object&gt;
+          &lt;packing&gt;
+            &lt;property name=&quot;position&quot;&gt;3&lt;/property&gt;
+          &lt;/packing&gt;
+        &lt;/child&gt;
+        &lt;child&gt;
+          &lt;object class=&quot;GtkButton&quot; id=&quot;btnNewGame&quot;&gt;
+            &lt;property name=&quot;label&quot; translatable=&quot;yes&quot;&gt;New Game&lt;/property&gt;
+            &lt;property name=&quot;visible&quot;&gt;True&lt;/property&gt;
+            &lt;property name=&quot;can_focus&quot;&gt;True&lt;/property&gt;
+            &lt;property name=&quot;receives_default&quot;&gt;True&lt;/property&gt;
+          &lt;/object&gt;
+          &lt;packing&gt;
+            &lt;property name=&quot;position&quot;&gt;4&lt;/property&gt;
+          &lt;/packing&gt;
+        &lt;/child&gt;
+        &lt;child&gt;
+          &lt;object class=&quot;GtkButton&quot; id=&quot;btnQuit&quot;&gt;
+            &lt;property name=&quot;label&quot; translatable=&quot;yes&quot;&gt;Quit&lt;/property&gt;
+            &lt;property name=&quot;visible&quot;&gt;True&lt;/property&gt;
+            &lt;property name=&quot;can_focus&quot;&gt;True&lt;/property&gt;
+            &lt;property name=&quot;receives_default&quot;&gt;True&lt;/property&gt;
+          &lt;/object&gt;
+          &lt;packing&gt;
+            &lt;property name=&quot;position&quot;&gt;5&lt;/property&gt;
+          &lt;/packing&gt;
+        &lt;/child&gt;
+      &lt;/object&gt;
+    &lt;/child&gt;
+  &lt;/object&gt;
+&lt;/interface&gt;
+</pre>
+
+<h4>V2.cs</h4>
+<pre class="prettyprint">
+using System;
+using Gtk;
+
+public class V2
+{
+    private Builder builder;
+    private Window window;
+
+    private Random random;
+    private int secret;
+    private int attempts;
+
+    private Entry entry;
+
+    private Button btnQuit;
+    private Button btnNewGame;
+    private Button btnGuess;
+
+    private Label lblFeedback;
+    private Label lblAttempts;
+
+    public V2()
+    {
+        builder = new Gtk.Builder();
+        try
+        {
+            builder.AddFromFile("V2.ui");
+        }
+        catch( Exception )
+        {
+            throw new Exception("File V2.ui does exist or does not contain a GUI");
+        }
+        try
+        {
+            window = (Gtk.Window)builder.GetObject("window1");
+        }
+        catch( Exception )
+        {
+            throw new Exception("A window named window1 does not exist in the GUI");
+        }
+        if( window==null )
+            throw new Exception("A window named window1 does not exist in the GUI");
+
+        window.Hidden += OnWindowHide;
+        window.Visible = true;
+
+        btnGuess = (Gtk.Button)builder.GetObject("btnGuess");
+        btnNewGame = (Gtk.Button)builder.GetObject("btnNewGame");
+        btnQuit = (Gtk.Button)builder.GetObject("btnQuit");
+
+        entry = (Gtk.Entry)builder.GetObject("entry1");
+
+        lblAttempts = (Gtk.Label)builder.GetObject("lblAttempts");
+        lblFeedback = (Gtk.Label)builder.GetObject("lblFeedback");
+
+        random = new Random();
+        secret = random.Next(100);
+        attempts = 0;
+        entry.Text = "";
+        lblFeedback.Text = "";
+        lblAttempts.Text = "";
+
+        btnQuit.Clicked += delegate { Application.Quit(); };
+
+        btnGuess.Clicked += OnGuess;
+        entry.Activated += OnGuess;
+
+        btnNewGame.Clicked += delegate
+        {
+            secret = random.Next(100);
+            attempts = 0;
+            entry.Text = "";
+            lblFeedback.Text = "";
+            lblAttempts.Text = "";
+        };
+    }
+
+    private void OnGuess(object source, EventArgs args)
+    {
+        int r = int.Parse(entry.Text);
+
+        if (r == secret)
+        {
+            lblFeedback.Text = "You won!";
+            return;
+        }
+
+        if (r &lt; secret)
+            lblFeedback.Text = "Too low";
+        else
+            lblFeedback.Text = "Too high";
+
+        attempts++;
+        lblAttempts.Text = "Fjöldi tilrauna: " + attempts;
+    }
+
+    static void Main( String[] args )
+    {
+        Application.Init();
+        new V2();
+        Gtk.Application.Run();
+    }
+    
+    protected void OnWindowHide( object source, EventArgs args )
+    {
+        Gtk.Application.Quit();
+    }
+
+}
+</pre>
+
+<h3>Lausn með handgerðu viðmóti</h3>
+<h4>V2.cs</h4>
+<pre class="prettyprint">
+using Gtk;
+using System;
+
+public class V2 : Window
+{
+    private Random random;
+    private int secret;
+    private int attempts;
+
+    private Entry entry;
+
+    private Button btnQuit;
+    private Button btnNewGame;
+    private Button btnGuess;
+
+    private Label lblFeedback;
+    private Label lblAttempts;
+
+    public V2() : base("Guess")
+    {
+        entry = new Entry();
+
+        btnQuit = new Button("Quit");
+        btnNewGame = new Button("New Game");
+        btnGuess = new Button("Guess!");
+
+        lblFeedback = new Label();
+        lblAttempts = new Label();
+
+        VBox vbox = new VBox();
+        vbox.Add(lblFeedback);
+        vbox.Add(lblAttempts);
+        vbox.Add(entry);
+        vbox.Add(btnGuess);
+        vbox.Add(btnNewGame);
+        vbox.Add(btnQuit);
+
+        random = new Random();
+        secret = random.Next(100);
+        attempts = 0;
+
+        DeleteEvent += delegate { Application.Quit(); };
+        btnQuit.Clicked += delegate { Application.Quit(); };
+
+        btnGuess.Clicked += OnGuess;
+        entry.Activated += OnGuess;
+
+        btnNewGame.Clicked += delegate
+        {
+            secret = random.Next(100);
+            attempts = 0;
+            entry.Text = "";
+            lblFeedback.Text = "";
+            lblAttempts.Text = "";
+        };
+
+        Add(vbox);
+
+        ShowAll();
+    }
+
+    private void OnGuess(object source, EventArgs args)
+    {
+        int r = int.Parse(entry.Text);
+
+        if (r == secret)
+        {
+            lblFeedback.Text = "You won!";
+            return;
+        }
+
+        if (r &lt; secret)
+            lblFeedback.Text = "Too low";
+        else
+            lblFeedback.Text = "Too high";
+
+        attempts++;
+        lblAttempts.Text = "Fjöldi tilrauna: " + attempts;
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new V2();
+        Application.Run();
+    }
+}
+</pre>
+
+<h2>Skilaverkefni 2</h2>
+
+<ul>
+<li><a href="V2.pdf">Skilaverkefni 2</a></li>
+</ul>
+
+<h3>Dæmi: Breyta streng í tölu í C#</h3>
+<pre class="prettyprint">
+using System;
+
+public class a
+{
+    public static void Main(string[] args)
+    {
+        int n = int.Parse("1234");
+        Console.WriteLine(n);
+    }
+}
+</pre>
+
+<h3>Skiladagur</h3>
+Verkefninu skal skilað fyrir kl. 16 föstudaginn 11. febrúar í hólf 27 (merkt Hallgrími H. Gunnarssyni) við inngang VR-2. Skilið útprentun á kóðanum ásamt skjáskoti (screenshot) af forritinu í keyrslu. Verkefnaskil verða framvegis alltaf á sama tíma, þ.e. fyrir kl. 16:00 á föstudögum, og alltaf í hólfið mitt. Þá hef ég tíma til að fara yfir lausnirnar og skila þeim til baka í dæmatímunum eftir helgina (mánudegi og miðvikudegi) og þá get ég einnig hagað áherslum í dæmatímunum eftir því hvernig nemendum gekk með verkefnið.
+<p>
+Farið verður yfir lausn verkefnisins í dæmatímunum mánudaginn 14. febrúar (d1) og miðvikudaginn 16. febrúar (d2). Auk þess munu nemendur fá sínar úrlausnir yfirfarnar til baka í dæmatímunum. Ósóttar lausnir verða settar í möppu merkt Viðmótsforritun í bókahillunni í tölvustofunni hjá Nörd í Endurmenntun.
+
+<h3>Slembitölur í C#</h3>
+Það er hægt að framleiða slembitölur með System.Random klasanum í C#. Hann inniheldur m.a. tilviksaðferðina Next:
+
+<pre class="prettyprint">
+// Notkun: n = r.Next(m);
+// Fyrir:  0 &lt;= m &lt;= int.MaxValue
+// Eftir:  n er ný slembitala á bilinu [0,m].
+</pre>
+
+Dæmi um forrit sem prentar út slembitölu á bilinu [0,1000].
+
+<pre class="prettyprint">
+using System;
+
+public class RandomTest
+{
+    public static void Main()
+    {
+        Random r = new Random();
+        System.Console.WriteLine(r.Next(1000));
+    }
+}
+</pre>
+
+<h3>Grípa Enter í innsláttarsvæði</h3>
+Þegar það er ýtt á Enter hnappinn í innsláttarsvæði af gerðinni Gtk.Entry þá verður til Gtk.Entry.Activated atburður. Eftirfarandi forrit sýnir dæmi um tengingu atburðarins.
+
+<pre class="prettyprint">
+using System;
+using Gtk;
+ 
+public class EntryTest : Window
+{
+    private Entry input = new Entry();
+
+    public EntryTest() : base("Entry Test")
+    {
+        SetDefaultSize(250, 200);
+        SetPosition(WindowPosition.Center);
+
+        input.Activated += delegate { Console.WriteLine("Activated"); };
+
+        Add(input);
+        ShowAll();
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+        new EntryTest();
+        Application.Run();   
+    }
+}
+</pre>
+
+<h3>Skilaverkefnið</h3>
+
+Verkefnið felst í að skrifa einfaldan leik þar sem notandinn giskar á slembitölu. Þegar forritið er ræst þá framleiðir það slembitölu og heldur henni leyndri. Þið megið ráða stærð bilsins fyrir slembitöluna. Forritið birtir síðan glugga sem inniheldur eftirfarandi upplýsingar og stjórntæki:
+
+<ul>
+<li>Innsláttarsvæði (Gtk.Entry) fyrir næstu ágiskun þar sem notandinn getur slegið inn tölu. Þið getið séð hvernig innsláttarsvæði er smíðað og notað í reiknivélinni. Ef það er ýtt á Enter hnappinn í innsláttarsvæðinu þá ætti það að virka eins og smellt hefði verið á Giska hnappinn.</li>
+<li>Hnappur (Gtk.Button) fyrir næstu ágiskun (Giska hnappur). Þegar smellt er á hann þá les forritið gildið úr innsláttarsvæðinu og bregst við því á viðeigandi hátt.</li>
+<li>Hnappur (Gtk.Button) til að hefja nýjan leik.</li>
+<li>Hnappur (Gtk.Button) til að hætta í forritinu.</li>
+<li>Birtingarsvæði (Gtk.Label) sem sýnir fjölda ágiskana hingað til. Teljarinn er núllstilltur þegar nýr leikur hefst.</li>
+<li>Birtingarsvæði (Gtk.Label) sem sýnir hvort innslegin tala sé minni eða stærri en slembitalan. Ef það er giskað á rétta tölu þá birtir forritið texta sem gefur það til kynna.</li>
+</ul>
+<p>
+Hér er teikning af því hvernig þetta gæti litið út:
+<p>
+<img src="V2.png" border="0">
+<p>
+Gengið er út frá því að verkefnið sé unnið í C# og Gtk#. Ykkur er frjálst að nota önnur forritunarmál (t.d. Python) svo lengi sem það forritunarmál styður Gtk og verkefnið sé unnið í Gtk. Kennslan er samt miðuð út frá C# og þið eruð á eigin ábyrgð ef þið veljið eitthvað annað.
+<p>
+Þið getið valið milli þess að smíða viðmótið í höndunum eða nota þar til gerð tól (t.d. MonoDevelop og Glade) sem leyfa ykkur að teikna viðmótið og hlaða því inn úr XML skrá þegar forritið er ræst.
+
+<h2>Mono Gtk# skjölun</h2>
+<ul>
+<li><a href="http://www.mono-project.com/GtkSharp:_Widget_Hierarchy">Widget hierarchy</a></li>
+<li><a href="http://www.go-mono.com/docs/index.aspx?link=T:Gtk.Widget">Gtk.Widget class</a> (með lista yfir öll events)</li>
+</ul>
+
+<h2>Einföld RPN (postfix) reiknivél</h2>
+
+<img src="calc.jpg" border="0">
+
+<h4>Calculator.cs</h4>
+<pre class="prettyprint">
+using System;
+using System.Text;
+using System.Collections.Generic;
+using Gtk;
+ 
+public class Calculator : Window
+{
+    private Stack&lt;double&gt; s = new Stack&lt;double&gt;();
+    private Entry display = new Entry();
+
+    public Calculator() : base("Calculator")
+    {
+        SetDefaultSize(250, 200);
+        SetPosition(WindowPosition.Center);
+        DeleteEvent += delegate { Application.Quit(); };
+        KeyPressEvent += KeyPressHandler;
+
+        VBox vbox = new VBox(false, 2);
+        Table table = new Table(4, 4, true);
+
+        Button zero  = new Button("0");
+        Button one   = new Button("1");
+        Button two   = new Button("2");
+        Button three = new Button("3");
+        Button four  = new Button("4");
+        Button five  = new Button("5");
+        Button six   = new Button("6");
+        Button seven = new Button("7");
+        Button eight = new Button("8");
+        Button nine  = new Button("9");
+
+        Button plus  = new Button("+");
+        Button minus = new Button("-");
+        Button multiply = new Button("*");
+        Button divide = new Button("/");
+
+        Button dup = new Button("dup");
+        Button pop = new Button("pop");
+
+        zero.Clicked  += delegate { s.Push(0.0); updateDisplay(); };
+        one.Clicked   += delegate { s.Push(1.0); updateDisplay(); };
+        two.Clicked   += delegate { s.Push(2.0); updateDisplay(); };
+        three.Clicked += delegate { s.Push(3.0); updateDisplay(); };
+        four.Clicked  += delegate { s.Push(4.0); updateDisplay(); };
+        five.Clicked  += delegate { s.Push(5.0); updateDisplay(); };
+        six.Clicked   += delegate { s.Push(6.0); updateDisplay(); };
+        seven.Clicked += delegate { s.Push(7.0); updateDisplay(); };
+        eight.Clicked += delegate { s.Push(8.0); updateDisplay(); };
+        nine.Clicked  += delegate { s.Push(9.0); updateDisplay(); };
+
+        plus.Clicked += delegate
+        {
+            if (s.Count &lt; 2)
+                return;
+
+            double a = s.Pop();
+            double b = s.Pop();
+            s.Push(a+b);
+            updateDisplay();
+        };
+
+        minus.Clicked += delegate
+        {
+            if (s.Count &lt; 2)
+                return;
+
+            double b = s.Pop();
+            double a = s.Pop();
+            s.Push(a-b);
+            updateDisplay();
+        };
+
+        multiply.Clicked += delegate
+        {
+            if (s.Count &lt; 2)
+                return;
+
+            double a = s.Pop();
+            double b = s.Pop();
+            s.Push(a*b);
+            updateDisplay();
+        };
+
+        divide.Clicked += delegate
+        {
+            if (s.Count &lt; 2)
+                return;
+
+            double a = s.Pop();
+            double b = s.Pop();
+            s.Push(a/b);
+            updateDisplay();
+        };
+
+        dup.Clicked += delegate
+        {
+            if (s.Count == 0)
+                return;
+
+            s.Push(s.Peek());
+            updateDisplay();
+        };
+
+        pop.Clicked += delegate
+        {
+            if (s.Count == 0)
+                return;
+
+            s.Pop();
+            updateDisplay();
+        };
+
+        table.Attach(seven, 0, 1, 0, 1);
+        table.Attach(eight, 1, 2, 0, 1);
+        table.Attach(nine, 2, 3, 0, 1);
+        table.Attach(divide, 3, 4, 0, 1);
+
+        table.Attach(four, 0, 1, 1, 2);
+        table.Attach(five, 1, 2, 1, 2);
+        table.Attach(six, 2, 3, 1, 2);
+        table.Attach(multiply, 3, 4, 1, 2);
+
+        table.Attach(one, 0, 1, 2, 3);
+        table.Attach(two, 1, 2, 2, 3);
+        table.Attach(three, 2, 3, 2, 3);
+        table.Attach(minus, 3, 4, 2, 3);
+
+        table.Attach(zero, 0, 1, 3, 4);
+        table.Attach(dup, 1, 2, 3, 4);
+        table.Attach(pop, 2, 3, 3, 4);
+        table.Attach(plus, 3, 4, 3, 4);
+
+        this.display.IsEditable = false;
+
+        vbox.PackStart(this.display, false, false, 0);
+        vbox.PackEnd(table, true, true, 0);
+
+        Add(vbox);
+
+        ShowAll();
+    }
+
+    private void updateDisplay()
+    {
+        Stack&lt;double&gt; r = new Stack&lt;double&gt;(s);
+        StringBuilder sb = new StringBuilder();
+
+        foreach (double d in r)
+        {
+            sb.Append(d);
+            sb.Append(" ");
+        }
+
+        this.display.Text = sb.ToString();
+    }
+
+    private void KeyPressHandler(object o, KeyPressEventArgs args)
+    {
+        double a, b;
+
+        System.Console.WriteLine("KeyPressEvent: {0}", args.Event.Key);
+        System.Console.WriteLine("KeyPressEvent: {0}", args.Event.KeyValue);
+
+        switch (args.Event.Key)
+        {
+            case Gdk.Key.Key_0:
+                s.Push(0.0);
+                break;
+            case Gdk.Key.Key_1:
+                s.Push(1.0);
+                break;
+            case Gdk.Key.Key_2:
+                s.Push(2.0);
+                break;
+            case Gdk.Key.Key_3:
+                s.Push(3.0);
+                break;
+            case Gdk.Key.Key_4:
+                s.Push(4.0);
+                break;
+            case Gdk.Key.Key_5:
+                s.Push(5.0);
+                break;
+            case Gdk.Key.Key_6:
+                s.Push(6.0);
+                break;
+            case Gdk.Key.Key_7:
+                s.Push(7.0);
+                break;
+            case Gdk.Key.Key_8:
+                s.Push(8.0);
+                break;
+            case Gdk.Key.Key_9:
+                s.Push(9.0);
+                break;
+            case Gdk.Key.plus:
+                if (s.Count &lt; 2)
+                    break;
+                a = s.Pop();
+                b = s.Pop();
+                s.Push(a+b);
+                break;
+            case Gdk.Key.minus:
+                if (s.Count &lt; 2)
+                    break;
+                b = s.Pop();
+                a = s.Pop();
+                s.Push(a-b);
+                break;
+            case Gdk.Key.asterisk:
+                if (s.Count &lt; 2)
+                    break;
+                a = s.Pop();
+                b = s.Pop();
+                s.Push(a*b);
+                break;
+            case Gdk.Key.slash:
+                if (s.Count &lt; 2)
+                    break;
+                a = s.Pop();
+                b = s.Pop();
+                s.Push(a/b);
+                break;
+            case Gdk.Key.d:
+                if (s.Count == 0)
+                    break;
+                s.Push(s.Peek());
+                break;
+            case Gdk.Key.p:
+                if (s.Count == 0)
+                    break;
+                s.Pop();
+                break;
+        }
+
+        updateDisplay();
+    }
+
+    public static void Main()
+    {
+        Application.Init();
+
+        new Calculator();
+
+        Application.Run();   
+    }
+}
+</pre>
+
+<h4>Þýðing og keyrsla</h4>
+<pre class="prettyprint">
+hhg@hhg:~/gui$ gmcs -pkg:gtk-sharp-2.0 Calculator.cs
+hhg@hhg:~/gui$ mono Calculator.exe
+hhg@hhg:~/gui$ 
+</pre>
+
+<h3>Einfalt Gtk# gluggaforrit í C#</h3>
+
+<h4>HelloWorld-gtk.cs</h4>
+<pre class="prettyprint">
+using System;
+using Gtk;
+
+public class HelloWorld
+{
+    public static void Main()
+    {
+        Application.Init();
+
+        Window win = new Window("Hello world!");
+
+        win.Resize(200,200);
+
+        Label label = new Label();
+        label.Text = "Hello world!";
+
+        win.Add(label);
+        win.ShowAll();
+
+        Application.Run();   
+    }
+}
+</pre>
+
+<h4>Þýðing og keyrsla</h4>
+<pre class="prettyprint">
+hhg@hhg:~/gui$ mcs -pkg:gtk-sharp-2.0 HelloWorld-gtk.cs
+hhg@hhg:~/gui$ mono HelloWorld-gtk.exe
+hhg@hhg:~/gui$ 
+</pre>
+
+<h2>Einfalt console forrit í C#</h2>
+
+<h4>HelloWorld.cs</h4>
+<pre class="prettyprint">
+using System;
+ 
+public class HelloWorld
+{
+    public static void Main()
+    {
+        Console.WriteLine("Hello World!");    
+    }
+}
+</pre>
+
+<h4>Þýðing og keyrsla</h4>
+<pre class="prettyprint">
+hhg@hhg:~/gui$ mcs HelloWorld.cs
+hhg@hhg:~/gui$ mono HelloWorld.exe
+Hello World!
+hhg@hhg:~/gui$ 
+</pre>
+
+</body>
+</html>
