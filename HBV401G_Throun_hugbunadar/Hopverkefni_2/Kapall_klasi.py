@@ -18,9 +18,10 @@ class Spil_node(object):
 
     def __repr__(self):
         'Strengjaframmsetning spils'
-        letters = {1:'Ás', 11:'Gosi', 12:'Drolla', 13:'Kóngur'}
-        letter = letters.get(self.gildi, str(self.gildi))
-        return "<%s %s>" % (self.sort, letter)
+        #letters = {1:'Ás', 11:'Gosi', 12:'Drolla', 13:'Kóngur'}
+        #letter = letters.get(self.gildi, str(self.gildi))
+        #return "<%s %s>" % (self.sort, letter)
+        return "<%s %s>" % (self.sort, self.gildi)
 #-------------------------------------------------------------------------------
 
 ################################################################################
@@ -242,6 +243,7 @@ class Tree(object):
 			return cnt
 		except:
 			print "Ekki löglegur hnútur"
+			return -1
 
 	def is_removeable(T,node):
 		'Skila True eff hægt sé að fjarlægja hann úr tréi'
@@ -249,6 +251,7 @@ class Tree(object):
 			return node.left is None and node.right is None
 		except:
 			print "Ekki löglegur hnútur"
+			return False
 #-------------------------------------------------------------------------------
 
 if __name__ == '__main__':
@@ -260,6 +263,6 @@ if __name__ == '__main__':
 	'''
 	Á þesum tímapunkti er tréið fullt og spilastokkur heldur utan um þau spil sem eftir eru
 	og öll spil eru komin í tréið. Spilin í tréinu eru geymd í t.stokkur.stokkur og hægt
-	er að komast að því hvort hægt sé að sækja það úr tréinu með tree.is_removeable(x)
-	þar sem x er einhvað spil.
+	er að komast að því hvort hægt sé að sækja það úr tréinu með tree.is_removeable(x),
+	þar sem x er einhvað spil úr tréinu.
 	'''
