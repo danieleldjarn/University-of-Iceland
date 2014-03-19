@@ -24,8 +24,9 @@ class Example(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnQuit, quit)
         self.Bind(wx.EVT_MENU, self.loadAbout, about)
 
-        self.SetSize((300, 200))
+        self.SetSize((800, 600))
         self.SetTitle('Tri-Peaks')
+        self.SetBackgroundColour((1,83,9))
         self.Centre()
         self.Show(True)
         
@@ -34,7 +35,7 @@ class Example(wx.Frame):
 
     def loadAbout(self, e):
     	wx.MessageBox('Tri-Peaks\nÞróun Hugbúnaðar vor 2014\nHópur 30:\nDaníel Sandjárn\nKjartan B. Rough\nDaníel Heimsson\nFunky Oak\nHans Pétursson', 'About', 
-        wx.OK | wx.ICON_INFORMATION)
+        wx.OK)
 
 
 def main():
