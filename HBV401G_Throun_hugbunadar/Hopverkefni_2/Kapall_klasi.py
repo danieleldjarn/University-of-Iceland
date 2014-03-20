@@ -17,7 +17,7 @@ class Spil_node(object):
         self.right_p   = right_p        
 
     def __repr__(self):
-        'Strengjaframsetning spils'
+        'Strengjaframmsetning spils'
         #letters = {1:'Ás', 11:'Gosi', 12:'Drolla', 13:'Kóngur'}
         #letter = letters.get(self.gildi, str(self.gildi))
         #return "<%s %s>" % (self.sort, letter)
@@ -54,26 +54,28 @@ class Stokkur(object):
             self.stokkur += [spil]
             self.spilafjoldi += 1
 
-    def get_next(self):
-        'Sækir næsta spil í stokkinn og skilar því'
-        if self.spilafjoldi == 0:
+    def get_next(self, pos=-1):
+        'Sækir spil í staðsetningu pos í stokkinn, skilar því og eyðir því'
+        if self.spilafjoldi == 0 or pos >= self.spilafjoldi:
             return None
-        else:
-            self.spilafjoldi -= 1
-            spil = self.stokkur[-1]
-            del self.stokkur[-1]
-            return spil
+    	else:
+    		self.spilafjoldi -= 1
+    		x = self.stokkur.pop(pos)
+    		return x
+    def remove_pos(self,pos=-1):
+    	'Eyðir spili úr staðsetningu pos úr stokkinum'
+    	self.stokkur.pop(pos)
 
     def has_next(self):
         'Skilar True þþaa stokkurinn sé ekki tómur'
         return (self.spilafjoldi > 0)
 
     def __repr__(self):
-        'Strengjaframsetning stokks'
-        s = "Stokkurinn samanstendur af: \n"
+        'Strengjaframmsetning stokks'
+        s = ""
         for i in range(len(self.stokkur)):
-            s = s + " " + str(self.stokkur[i])+"\n"
-        return s
+            s = s + " " + str(self.stokkur[i])+", "
+        return s[0:-2]+"\n"
 #-------------------------------------------------------------------------------
 
 ################################################################################
@@ -253,16 +255,3 @@ class Tree(object):
 			print "Ekki löglegur hnútur"
 			return False
 #-------------------------------------------------------------------------------
-
-if __name__ == '__main__':
-	spilastokkur = Stokkur()
-	spilastokkur.nyr_random_stokkur()
-
-	tree = Tree()
-	tree.make_tree(spilastokkur)
-	'''
-	Á þesum tímapunkti er tréið fullt og spilastokkur heldur utan um þau spil sem eftir eru
-	og öll spil eru komin í tréið. Spilin í tréinu eru geymd í t.stokkur.stokkur og hægt
-	er að komast að því hvort hægt sé að sækja það úr tréinu með tree.is_removeable(x),
-	þar sem x er einhvað spil úr tréinu.
-	'''
