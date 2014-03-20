@@ -17,7 +17,7 @@ class Spil_node(object):
         self.right_p   = right_p        
 
     def __repr__(self):
-        'Strengjaframmsetning spils'
+        'Strengjaframsetning spils'
         #letters = {1:'Ás', 11:'Gosi', 12:'Drolla', 13:'Kóngur'}
         #letter = letters.get(self.gildi, str(self.gildi))
         #return "<%s %s>" % (self.sort, letter)
@@ -69,7 +69,7 @@ class Stokkur(object):
         return (self.spilafjoldi > 0)
 
     def __repr__(self):
-        'Strengjaframmsetning stokks'
+        'Strengjaframsetning stokks'
         s = "Stokkurinn samanstendur af: \n"
         for i in range(len(self.stokkur)):
             s = s + " " + str(self.stokkur[i])+"\n"
