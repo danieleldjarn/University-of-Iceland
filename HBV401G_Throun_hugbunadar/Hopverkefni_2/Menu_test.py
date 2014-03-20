@@ -35,15 +35,15 @@ class Example(wx.Frame):
         self.Show(True)
         
     def Start(self, e):
+        #tímabundið
         self.SetTitle('New game')
-
 
     def OnQuit(self, e):
         self.Close()
 
     def loadHighscore(self, e):
+        #tímabundið-næst inn
         self.SetTitle('Highscore')
-
 
     def loadAbout(self, e):
     	wx.MessageBox('Tri-Peaks\nÞróun Hugbúnaðar vor 2014\nHópur 30:\nDaníel Sandjárn\nKjartan B. Rough\nDaníel Heimsson\nFunky Oak\nHans Pétursson', 'About', 
