@@ -54,21 +54,22 @@ class Highscores(wx.Frame):
         hslist = sorted(hslist, key = lambda x: x[-1]) 
         return hslist
 
-    #athugar hvort time kemst í top 10
+    #athugar hvort time kemst í top 10. ef já skrifar það inn
     def checkForHighscore(self,time):
-        if time <= self.returnScore():
+        if self.returnScore(time):
             self.setHighscore(time)
 
-    #skilar minnsta tíma sem þarf til að komast á highscore töflu
-    #eða því gildi í listanum sem er beðið um
-    def returnScore(self,nr=9):
+    #skilar true ef time kemst í top 10
+    def returnScore(self,time):
         temp = []
         temp = self.getScoreList()
-        if len(temp) == 0:
-            return 1000000
-        elif len(temp)<=nr:
-            nr = len(temp)-1
-        return float(temp[nr][-1])
+        ScoreListLength = 9
+        if len(temp) <= ScoreListLength:
+            return True
+        elif time <= float(temp[ScoreListLength][-1]):
+            return True
+        else:
+            return False
 
     #skrifar highscore í út í skjal
     def setHighscore(self,time):
