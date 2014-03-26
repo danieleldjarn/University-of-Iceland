@@ -5,13 +5,15 @@ import wx
 import sys
 
 class Highscores(wx.Frame):
-    def __init__(self, parent, id, title):
-        wx.Frame.__init__(self, parent, id, title, size=(330, 300))
+    def __init__(self, parent, id, title,time =-1):
+        wx.Frame.__init__(self, parent, id, title, size=(330, 230))
 
         hbox = wx.BoxSizer(wx.HORIZONTAL)
         panel = wx.Panel(self, -1)
 
-        hs = self.getFile()
+        if time != -1:
+            self.checkForHighscore(time)
+        hs = self.getScoreList()
 
         self.list = wx.ListCtrl(panel, -1, style=wx.LC_REPORT)
         self.list.InsertColumn(0, 'nr.', width=25)
@@ -27,15 +29,22 @@ class Highscores(wx.Frame):
             self.list.SetStringItem(index, 1, nafn)
             self.list.SetStringItem(index, 2, i[-1])
             count += 1
+            if count >10:
+                break
 
         hbox.Add(self.list, 1, wx.EXPAND)
         panel.SetSizer(hbox)
-
+        
         self.Centre()
         self.Show(True)
 
-    def getFile(self):
-        highscorefile = open("highscores")
+    #opnar highscores file og skilar gildum úr honum í röðuðum lista
+    def getScoreList(self):
+        import os.path
+        if not os.path.isfile("highscores"):
+            highscorefile = open("highscores", "w+")
+        else:
+            highscorefile = open("highscores")
         temp = []
         hslist = []
         temp += highscorefile.readlines()
@@ -44,6 +53,44 @@ class Highscores(wx.Frame):
             hslist.append(i.split())
         hslist = sorted(hslist, key = lambda x: x[-1]) 
         return hslist
+
+    #athugar hvort time kemst í top 10
+    def checkForHighscore(self,time):
+        if time <= self.returnScore():
+            self.setHighscore(time)
+
+    #skilar minnsta tíma sem þarf til að komast á highscore töflu
+    #eða því gildi í listanum sem er beðið um
+    def returnScore(self,nr=9):
+        temp = []
+        temp = self.getScoreList()
+        if len(temp) == 0:
+            return 1000000
+        elif len(temp)<=nr:
+            nr = len(temp)-1
+        return float(temp[nr][-1])
+
+    #skrifar highscore í út í skjal
+    def setHighscore(self,time):
+        import os.path
+        if not os.path.isfile("highscores"):
+            highscorefile = open("highscores", "w+")
+        else:
+            highscorefile = open("highscores", "a")
+        
+        #popup til að sækja nafn á sigurvegara
+        dlg = wx.TextEntryDialog(None,'What is your name?','You\'ve got a new highscore!', '')
+        popup = dlg.ShowModal()
+        name = dlg.GetValue()
+        dlg.Destroy()
+        
+        if name != "":
+            highscorefile.write(name+" "+str(time)+"\n")
+        highscorefile.close()
+
+
+
+
 
 class Example(wx.Frame):
     
@@ -86,7 +133,7 @@ class Example(wx.Frame):
         Highscores(self, -1, 'Highscores')
 
     def loadAbout(self, e):
-    	wx.MessageBox('Tri-Peaks\nÞróun Hugbúnaðar vor 2014\nHópur 30:\nDaníel Sandjárn\nKjartan B. Rough\nDaníel Heimsson\nFunky Oak\nHans Pétursson', 'About', 
+    	wx.MessageBox('Tri-Peaks\nÞróun Hugbúnaðar vor 2014\nHópur 26 eða 30:\nDaníel Sandjárn\nKjartan B. Rough\nDaníel Heimsson\nFunky Oak\nHans Óli', 'About', 
         wx.OK)
 
 
@@ -99,3 +146,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+#on win:       Highscores(self, -1, 'Highscores',time)
