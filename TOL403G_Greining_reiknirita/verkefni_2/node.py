@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 #Smiður fyrir nóður
 # Notkun: Node(i, p)
 # Fyrir: i er heiltölubil, p er foreldri nóðunnar
