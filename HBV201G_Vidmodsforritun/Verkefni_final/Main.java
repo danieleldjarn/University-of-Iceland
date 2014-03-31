@@ -1,5 +1,8 @@
-// Compile using: javac -cp .:jcalendar_1.4.jar Main.java
-// Run using: java -cp .:jcalendar_1.4.jar MainTask
+/*  Compile using: javac -cp .:jcalendar_1.4.jar Main.java
+**  Run using: java -cp .:jcalendar_1.4.jar Main
+**
+**  Note that the program will not compile if the "data" directory is missing. Please add the directory if it is missing.
+*/
 
 import java.awt.*;
 import java.awt.event.*;

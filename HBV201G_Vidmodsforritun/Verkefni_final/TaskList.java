@@ -9,53 +9,54 @@ import java.text.*;
 import java.io.*;
 import com.toedter.calendar.JCalendar;
 import java.util.List;
-
-
 import javax.swing.JButton;
 
 public class TaskList extends JFrame implements ActionListener {
 
-    private JPanel          panel;
-    private JList   myList;
+    private JPanel      panel;
+    private JList       myList;
+    private String[]    taskList;
     
+    private JPanel      buttonPanel;
+    private JButton     addEventButton;
+    private JButton     deleteEventButton;
+
+
     public TaskList() {
         
-        // Set various JFrame behaviour
-        //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE); // Change this to EXIT_ON_CLOSE?
         setPreferredSize(new Dimension(300,300));
 
         panel = new JPanel(new BorderLayout());
         
-        String[] taskList = generateTaskList();
-
+        taskList = generateTaskList();
         myList = new JList<String>(taskList);
 
         // Setup and configure buttons
-        JPanel buttonPanel = new JPanel(new BorderLayout());
-        JButton addEventButton = new JButton("Add");
-        JButton deleteEventButton = new JButton("Delete");
-        
+        buttonPanel = new JPanel(new BorderLayout());
+
+        addEventButton = new JButton("Add");
         addEventButton.setPreferredSize(new Dimension(100, 50));
-        deleteEventButton.setPreferredSize(new Dimension(100, 50));
-        
         buttonPanel.add(addEventButton, BorderLayout.WEST);
+        addEventButton.addActionListener(this);
+        addEventButton.setActionCommand("addEvent");
+
+        deleteEventButton = new JButton("Delete");
+        deleteEventButton.setPreferredSize(new Dimension(100, 50));
         buttonPanel.add(deleteEventButton, BorderLayout.EAST);
+        deleteEventButton.addActionListener(this);
+        deleteEventButton.setActionCommand("deleteEvent");
+        // END Setup and configure buttons
 
         panel.add(myList, BorderLayout.CENTER);
         panel.add(buttonPanel, BorderLayout.SOUTH);
         
-        addEventButton.addActionListener(this);
-        addEventButton.setActionCommand("addEvent");
-
-        deleteEventButton.addActionListener(this);
-        deleteEventButton.setActionCommand("deleteEvent");
         setContentPane(panel);
-
-        generateTaskList();
     }
 
+    /*
+    *   Event handler for this JFrame
+    */
     @Override
     public void actionPerformed(ActionEvent ae) {
         String action = ae.getActionCommand();
@@ -85,17 +86,20 @@ public class TaskList extends JFrame implements ActionListener {
             // Dispose of the current frame
             this.dispose();
 
-            // Call the task list again
+            // Generate a new TaskList instance to refresh the list of tasks
             JFrame tasklist = new TaskList();
             tasklist.pack();
             tasklist.setVisible(true);
         }
     }
 
+    /*
+    *   Deletes a selected event from the task list.
+    */
     private void deleteEventData() {
 
         String selected = myList.getSelectedValue().toString();
-        String fileName = selected.substring(0,10);
+        String fileName = selected.substring(0,10); // Extract the date from the task
 
         try {
             File file = new File("./data/" + fileName);
@@ -112,6 +116,9 @@ public class TaskList extends JFrame implements ActionListener {
 
     }
 
+    /*
+    *   Generates an array that contains all the tasks
+    */
     private String[] generateTaskList() {
         
         final File folder = new File("./data");
@@ -135,7 +142,7 @@ public class TaskList extends JFrame implements ActionListener {
             }
             catch (Exception e)
             {
-                System.out.println("Error, unable to open file in generateTaskList() The directory 'data' might be missing");
+                System.out.println("Error, unable to open file in generateTaskList(). The directory 'data' might be missing.");
             }
             
             String fileContents = new String(temp);
@@ -145,7 +152,7 @@ public class TaskList extends JFrame implements ActionListener {
 
         }
         catch (Exception e) {
-            System.out.println("Error, unable to open file in generateTaskList(). The directory 'data' might be missing");
+            System.out.println("Error, unable to open file in generateTaskList(). The directory 'data' might be missing.");
         }
 
         String[] taskListArray = new String[taskList.size()];

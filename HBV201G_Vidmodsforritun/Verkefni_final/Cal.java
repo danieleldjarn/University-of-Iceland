@@ -8,18 +8,15 @@ import java.util.Locale;
 import java.text.*;
 import java.io.*;
 import com.toedter.calendar.JCalendar;
-
 import javax.swing.JButton;
 
 public class Cal extends JFrame implements ActionListener {
 
-    String date; // Contains the current date
-    JTextArea writing_area = new JTextArea(); // The writing area
-    //    boolean weekOfYearVisible = True;
-    JCalendar calendar = new JCalendar(); // The calendar app
-    SimpleDateFormat date_format = new SimpleDateFormat("YYYY.MM.dd"); // The date format
+    String date;
+    JTextArea writing_area = new JTextArea();
+    JCalendar calendar = new JCalendar();
+    SimpleDateFormat date_format = new SimpleDateFormat("YYYY.MM.dd"); 
 
-    // The calendar class
     Cal() {
 
         setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -62,22 +59,22 @@ public class Cal extends JFrame implements ActionListener {
 
     }
 
+    /*
+    *   The event handler for this JFrame.
+    */
     @Override
     public void actionPerformed(ActionEvent ae) {
         String action = ae.getActionCommand();
         if (action.equals("return")) {
-
-            // Debug code
-            System.out.println("returnButton pressed");
+            System.out.println("returnButton pressed.");
 
             // Save current data
-            System.out.println("saving current event");
             setText(date,writing_area.getText());
-            
-            System.out.println("starting task list");
+            System.out.println("Text in writing area saved.")
 
-            // Dispose of the current frame
+            // Close this JFrame
             this.dispose();
+            System.out.println("Cal disposed off");
 
             // Call the task list again
             JFrame tasklist = new TaskList();
@@ -87,7 +84,9 @@ public class Cal extends JFrame implements ActionListener {
 
     }
 
-    // Save the text in the on the current date if we close the window
+    /*
+    *   Save the text in the on the current date if we close the window
+    */
     public class window_interaction extends WindowAdapter
     {
         public void windowClosing(WindowEvent evt)
@@ -99,7 +98,9 @@ public class Cal extends JFrame implements ActionListener {
         }
     }
 
-    // Change the contents of the date variable if we choose another day
+    /*
+    * Change the contents of the date variable if we choose another day
+    */
     public class selected_day implements PropertyChangeListener
     {
         public void propertyChange(PropertyChangeEvent evt)
@@ -108,7 +109,9 @@ public class Cal extends JFrame implements ActionListener {
         }
     }
 
-    // Write the text that we have written to a file
+    /*
+    *   Write the text in the text area to a file
+    */
     public void setText(String date, String text)
     {
         try
@@ -123,7 +126,9 @@ public class Cal extends JFrame implements ActionListener {
         }
     }
 
-    // Change the date variable
+    /*
+    *   Change the date variable
+    */
     public void setDate(String new_date)
     {
         if (new_date.equals(date))
@@ -138,14 +143,18 @@ public class Cal extends JFrame implements ActionListener {
         writing_area.setText(getText(date));
     }
 
-    // Format the date correctly
+    /*
+    *   Format the date correctly
+    */
     public String getFormatedDate()
     {
         Date date = calendar.getDate();
         return date_format.format(date);
     }
 
-    // Get the text from a date file if it exists. Else return an empty string
+    /*
+    *   Get the text from a date file if it exists. Else return an empty string
+    */
     public String getText(String date)
     {
         File file = new File("./data/" + date);
