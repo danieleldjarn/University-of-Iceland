@@ -6,21 +6,19 @@ class Spil_node(object):
     'Klasinn Spil_node býr til spil og heldur utan um gildi þess og sort'
     """
     Þar sem að Spil_node er hnútur í Tree tréinu að þá hefur það hægra og vinstra
-    barn (left og right) og hægra og vinstra foreldri (left_p og right_p).
+    barn (left og right).
     """
-    def __init__(self,sort,gildi,left=None,right=None,left_p=None,right_p=None):
+    def __init__(self,sort,gildi,left=None,right=None):
         self.sort      = sort
         self.gildi     = gildi
         self.left      = left
-        self.right     = right
-        self.left_p    = left_p
-        self.right_p   = right_p        
+        self.right     = right      
 
+    def __eq__(self,other):
+    	'Samanburðaraðgerð fyrir spil, skila True þþaa self og other séu sama spilið'
+    	return self.gildi == other.gildi and self.sort == other.sort
     def __repr__(self):
         'Strengjaframmsetning spils'
-        #letters = {1:'Ás', 11:'Gosi', 12:'Drolla', 13:'Kóngur'}
-        #letter = letters.get(self.gildi, str(self.gildi))
-        #return "<%s %s>" % (self.sort, letter)
         return "<%s %s>" % (self.sort, self.gildi)
 #-------------------------------------------------------------------------------
 
@@ -65,6 +63,7 @@ class Stokkur(object):
     def remove_pos(self,pos=-1):
     	'Eyðir spili úr staðsetningu pos úr stokkinum'
     	self.stokkur.pop(pos)
+    	self.spilafjoldi -= 1
 
     def has_next(self):
         'Skilar True þþaa stokkurinn sé ekki tómur'
@@ -84,14 +83,14 @@ class Tree(object):
 	"""
 	Ath. að tréið hefur 3 rætur og hver hnútur (sem er spil) getur átt tvö foreldri
 	Uppsetning trés:
-                                                               Dýpt
-           root_1            root_2            root_3           0
+
+           root_1            root_2            root_3           
            /   \             /   \             /   \  
-          x     x           x     x           x     x           1
+          x     x           x     x           x     x           
         /   \ /   \       /   \ /   \       /   \ /   \ 
-       x     x     x     x     x     x     x     x     x        2
+       x     x     x     x     x     x     x     x     x        
      /   \ /   \ /   \ /   \ /   \ /   \ /   \ /   \ /   \ 
-    x     x     x     x     x     x     x     x     x     x     3 
+    x     x     x     x     x     x     x     x     x     x      
 
 	"""
 	def __init__(T, make_node=Spil_node):
@@ -102,7 +101,7 @@ class Tree(object):
 		T.stokkur   = Stokkur()
 
 	def make_tree(T,stokkur=Stokkur()):
-		'make_tree athugar kallar fall sem býr til tréið þþaa stokkurinn sé löglegur'
+		'make_tree kallar á fall sem býr til tréið þþaa stokkurinn sé löglegur'
 		if stokkur.spilafjoldi <= 28:
 			print 'Stokkur of lítill'
 			return
@@ -116,142 +115,232 @@ class Tree(object):
 		'''
 		if T.root_1 == T.nil:
 			T.root_1 = stokkur.get_next()
-			T.root_1.left_p  = T.nil
-			T.root_1.right_p = T.nil
 
 			T.root_2 = stokkur.get_next()
-			T.root_2.left_p  = T.nil
-			T.root_2.right_p = T.nil
 
 			T.root_3 = stokkur.get_next()
-			T.root_3.left_p  = T.nil
-			T.root_3.right_p = T.nil
 
 		for i in range(0,3):
-			#Búum til hluttréið sem hefur root_1 sem rót
 			if i == 0:
 				root = T.root_1
-				root.left,  root.left.right_p  = stokkur.get_next(), root
-				root.right, root.right.left_p  = stokkur.get_next(), root
-				root.left.left_p   = T.nil
-				root.right.right_p = T.nil
-
-				root.left.right , root.left.right.left_p  = stokkur.get_next(), root.left
-				root.right.left , root.right.left.right_p = root.left.right   , root.right
-				root.left.left  , root.left.left.right_p  = stokkur.get_next(), root.left
-				root.right.right, root.right.right.left_p = stokkur.get_next(), root.right
-				root.left.left.left_p    = T.nil
-				root.right.right.right_p = T.nil
-
-				root.left.left.right , root.left.left.right.left_p   = stokkur.get_next()   , root.left.left
-				root.left.right.left , root.left.right.left.right_p  = root.left.left.right , root.left.right
-				root.left.right.right, root.left.right.right.left_p  = stokkur.get_next()   , root.left.right
-				root.right.right.left, root.right.right.left.right_p = root.left.right.right, root.right.right
-
-				root.right.right.right, root.right.right.right.left_p  = stokkur.get_next(), root.right.right
-				root.left.left.left   , root.left.left.left.right_p    = stokkur.get_next(), root.left.left
-				root.left.left.left.left_p = T.nil
-
-				T.stokkur.add(root.left)
-				T.stokkur.add(root.right)
-				T.stokkur.add(root.left.right)
-				T.stokkur.add(root.left.left)
-				T.stokkur.add(root.right.right)
-				T.stokkur.add(root.left.left.right)
-				T.stokkur.add(root.left.right.right)
-				T.stokkur.add(root.right.right.right)
-				T.stokkur.add(root.left.left.left)
-				T.root_1 = root
-			
-			#Búum til hluttréið sem hefur root_2 sem rót
 			elif i == 1:
 				root = T.root_2
-				root.left,  root.left.right_p  = stokkur.get_next(), root
-				root.right, root.right.left_p  = stokkur.get_next(), root
-				root.left.left_p   = T.nil
-				root.right.right_p = T.nil
-
-				root.left.right , root.left.right.left_p  = stokkur.get_next(), root.left
-				root.right.left , root.right.left.right_p = root.left.right   , root.right
-				root.left.left  , root.left.left.right_p  = stokkur.get_next(), root.left
-				root.right.right, root.right.right.left_p = stokkur.get_next(), root.right
-				root.left.left.left_p    = T.nil
-				root.right.right.right_p = T.nil
-
-				root.left.left.right , root.left.left.right.left_p   = stokkur.get_next()   , root.left.left
-				root.left.right.left , root.left.right.left.right_p  = root.left.left.right , root.left.right
-				root.left.right.right, root.left.right.right.left_p  = stokkur.get_next()   , root.left.right
-				root.right.right.left, root.right.right.left.right_p = root.left.right.right, root.right.right
-
-				root.right.right.right, root.right.right.right.left_p  = stokkur.get_next()        , root.right.right
-				root.left.left.left   , root.left.left.left.right_p    = T.root_1.right.right.right, root.left.left
-
-				T.stokkur.add(root.left)
-				T.stokkur.add(root.right)
-				T.stokkur.add(root.left.right)
-				T.stokkur.add(root.left.left)
-				T.stokkur.add(root.right.right)
-				T.stokkur.add(root.left.left.right)
-				T.stokkur.add(root.left.right.right)
-				T.stokkur.add(root.right.right.right)
-				T.root_2 = root
-
-			#Búum til hluttréið sem hefur root_3 sem rót
 			else:
 				root = T.root_3
-				root.left,  root.left.right_p  = stokkur.get_next(), root
-				root.right, root.right.left_p  = stokkur.get_next(), root
-				root.left.left_p   = T.nil
-				root.right.right_p = T.nil
 
-				root.left.right , root.left.right.left_p  = stokkur.get_next(), root.left
-				root.right.left , root.right.left.right_p = root.left.right   , root.right
-				root.left.left  , root.left.left.right_p  = stokkur.get_next(), root.left
-				root.right.right, root.right.right.left_p = stokkur.get_next(), root.right
-				root.left.left.left_p    = T.nil
-				root.right.right.right_p = T.nil
+			root.left, root.right = stokkur.get_next(), stokkur.get_next()
+			root.left.left, root.right.right = stokkur.get_next(), stokkur.get_next()
+			root.left.right = root.right.left = stokkur.get_next()
+			root.right.right.right = stokkur.get_next()
 
-				root.left.left.right , root.left.left.right.left_p   = stokkur.get_next()   , root.left.left
-				root.left.right.left , root.left.right.left.right_p  = root.left.left.right , root.left.right
-				root.left.right.right, root.left.right.right.left_p  = stokkur.get_next()   , root.left.right
-				root.right.right.left, root.right.right.left.right_p = root.left.right.right, root.right.right
+			root.right.right.left = root.right.left.right = root.left.right.right = stokkur.get_next()
+			root.right.left.left  = root.left.right.left  = root.left.left.right  = stokkur.get_next()
 
-				root.right.right.right, root.right.right.right.left_p  = stokkur.get_next()        , root.right.right
-				root.left.left.left   , root.left.left.left.right_p    = T.root_2.right.right.right, root.left.left
-				root.right.right.right.right_p = T.nil
+			if i == 0:
+				root.left.left.left = stokkur.get_next()
+			
+			elif i == 1:
+				root.left.left.left = T.root_1.right.right.right 
 
-				T.stokkur.add(root.left)
-				T.stokkur.add(root.right)
-				T.stokkur.add(root.left.right)
-				T.stokkur.add(root.left.left)
-				T.stokkur.add(root.right.right)
-				T.stokkur.add(root.left.left.right)
-				T.stokkur.add(root.left.right.right)
+			else:
+				root.left.left.left = T.root_2.right.right.right
+
+			T.stokkur.add(root)
+			T.stokkur.add(root.left)
+			T.stokkur.add(root.right)
+			T.stokkur.add(root.left.left)
+			T.stokkur.add(root.right.right)
+			T.stokkur.add(root.right.left)
+			T.stokkur.add(root.left.left.right)
+			T.stokkur.add(root.right.right.left)
+			T.stokkur.add(root.left.left.left)
+
+			if i == 0:
+				T.root_1 = root
+			elif i == 1:
+				T.root_2 = root
+			else:
 				T.stokkur.add(root.right.right.right)
 				T.root_3 = root
-		
-	def node_depth(T,node):
-		'node_depth fallið skilar í hvaða hæð hnútur er'
-		try:
-			cnt = 0
-			while node is not T.nil:
-				if node.left_p != T.nil:
-					node = node.left_p
-				elif node.right_p != T.nil:
-					node = node.right_p
+
+	def update_tree(T, spil):
+		'update_tree fallið leitar að tilteknu spili í heildartréi og eyðir því ef það er hægt'
+		if spil is not T.nil:
+			for i in range(0,3):
+				if i == 0:
+					if T.search_and_remove(T.root_1, spil):
+						T.stokkur.remove_pos(T.stokkur.stokkur.index(spil))
+						return True
+				elif i == 1:
+					if T.search_and_remove(T.root_2, spil):
+						T.stokkur.remove_pos(T.stokkur.stokkur.index(spil))
+						return True
 				else:
-					break
-				cnt += 1
-			return cnt
-		except:
-			print "Ekki löglegur hnútur"
-			return -1
+					if T.search_and_remove(T.root_3, spil):
+						T.stokkur.remove_pos(T.stokkur.stokkur.index(spil))
+						return True
+			return False
+		else:
+			return False
+
+	def search_and_remove(T, node, spil):
+		'leitar í hluttrjám að spili og eyðir því og skilar True eff það er fjarlægjanlegt'
+
+		if node == spil:
+			if T.is_removeable(node):
+				if node is T.root_1:
+					node = T.root_1 = T.nil
+				elif node is T.root_2:
+					node = T.root_2 = T.nil
+				elif node is T.root_3:
+					node = T.root_3 = node = T.nil
+				return True
+
+		if node is not T.nil:
+			if node.left == spil:
+				if T.is_removeable(node.left):
+					node.left = T.nil
+					return True
+
+			elif node.right == spil:
+				if T.is_removeable(node.right):
+					node.right = T.nil
+					return True
+
+			if node.left is not T.nil:
+				if node.left.left == spil:
+					if T.is_removeable(node.left.left):
+						node.left.left = T.nil
+						return True
+				elif node.left.right == spil:
+					if T.is_removeable(node.left.right):
+						node.left.right = T.nil
+						if node.right is not T.nil:
+							node.right.left = T.nil
+						return True
+
+			if node.right is not T.nil:
+				if node.right.right == spil: 
+					if T.is_removeable(node.right.right):
+						node.right.right = T.nil
+						return True	
+				elif node.right.left == spil:
+					if T.is_removeable(node.right.left):
+						node.right.left = T.nil
+						if node.left is not T.nil:
+							node.left.right = T.nil
+						return True			
+
+			if node.left is not T.nil and node.left.left is not T.nil:
+				if node is T.root_1:
+					if node.left.left.left == spil:
+						node.left.left.left = T.nil
+						return True
+				if node.left.left.right == spil:
+					node.left.left.right = T.nil
+					if node.left.right is not T.nil:
+						node.left.right.left = T.nil
+					if node.right.left is not T.nil:
+						node.right.left.left = T.nil
+					return True
+
+			if node.right is not T.nil and node.right.right is not T.nil:
+				if node.right.right.left == spil:
+					node.right.right.left = T.nil
+					if node.right.left is not T.nil:
+						node.right.left.right = T.nil
+					if node.left.right is not T.nil:
+						node.left.right.right = T.nil
+					return True
+
+				elif node.right.right.right == spil:
+					node.right.right.right = T.nil
+					if node is T.root_1 and T.root_2.left.left is not T.nil:
+						T.root_2.left.left.left = T.nil
+					elif node is T.root_2 and T.root_3.left.left is not T.nil:
+						T.root_3.left.left.left = T.nil
+					return True
+
+		else:
+			return False
+
+	def get_removeables(T):
+		'Skilar öllum spilunum sem eru fjarlægjanleg í heildartréi sem stokki'
+		xss = []
+		for i in range(0,3):
+			if i == 0:
+				xss += T.get_removeables_sub(T.root_1)
+			elif i == 1:
+				xss += T.get_removeables_sub(T.root_2)
+			elif i == 2:
+				xss += T.get_removeables_sub(T.root_3)
+		skilastokkur = Stokkur()
+		skilastokkur.stokkur = xss
+		skilastokkur.spilafjoldi += len(xss)
+		return skilastokkur
+
+	def get_removeables_sub(T, root):
+		'Skilar öllum þeim spilum sem lista sem eru fjarlægjanleg úr hluttréi sem hefur root sem rót'
+		xss = []
+
+		if root is not T.nil:
+			if T.is_removeable(root):
+				xss += [root]
+
+			if T.is_removeable(root.left):
+				xss += [root.left]
+			if T.is_removeable(root.right):
+				xss += [root.right]
+
+			if root.right is not T.nil:
+				if T.is_removeable(root.right.right):
+					xss += [root.right.right]
+				if T.is_removeable(root.right.left):
+					xss += [root.right.left]
+
+			if root.left is not T.nil:
+				if T.is_removeable(root.left.left):
+					xss += [root.left.left]
+				if root.right is not T.nil:
+					if T.is_removeable(root.left.right) and root.left.right is not root.right.left:
+						xss += [root.left.right]
+
+			if root.right is not T.nil and root.right.right is not T.nil:
+				if root.right.right.right is not T.nil:
+					xss += [root.right.right.right]
+				if root.right.right.left is not T.nil:
+					xss += [root.right.right.left]
+
+			if root.left is not T.nil and root.right is not T.nil and root.left.right is not T.nil:
+				if root.right.right is not T.nil:
+					if root.left.right.right is not T.nil and root.left.right.right is not root.right.right.left:
+						xss += [root.left.right.right]
+			if root.right is not T.nil and root.left is not T.nil and root.right.left is not T.nil:
+				if root.left.right is not T.nil and root.right.right is not T.nil:
+					if root.right.left.right is not T.nil and root.right.left.right is not root.left.right.right and root.right.left.right is not root.right.right.left:
+						xss += [root.right.left.right]
+
+			if root.left is not T.nil and root.left.left is not T.nil:
+				if root.left.left.right is not T.nil:
+					xss += [root.left.left.right]
+			if root.left is not T.nil and root.left.right is not T.nil:
+				if root.left.left is not T.nil:
+					if root.left.right.left is not T.nil and root.left.right.left is not root.left.left.right:
+						xss += [root.left.right.left]
+			if root.right is not T.nil and root.left is not T.nil and root.right.left is not T.nil:
+				if root.left.left is not T.nil and root.left.right is not T.nil:
+					if root.right.left.left is not T.nil and root.right.left.left is not root.left.right.left and root.right.left.left is not root.left.left.right:
+						xss += [root.right.left.left]
+
+			if root is T.root_1 and root.left is not T.nil and root.left.left is not T.nil:
+				if root.left.left.left is not T.nil:
+					xss += [root.left.left.left]
+
+		return xss
 
 	def is_removeable(T,node):
-		'Skila True eff hægt sé að fjarlægja hann úr tréi'
-		try:
-			return node.left is None and node.right is None
-		except:
-			print "Ekki löglegur hnútur"
-			return False
+		'Skila True eff hægt sé að fjarlægja spil úr tréi'
+		if type(node) is type(T.nil):
+			return node.left is T.nil and node.right is T.nil and node is not T.nil
+		return False
 #-------------------------------------------------------------------------------
