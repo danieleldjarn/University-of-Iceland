@@ -9,8 +9,10 @@ import java.text.*;
 import java.io.*;
 import com.toedter.calendar.JCalendar;
 
-public class Cal extends JFrame
-{
+import javax.swing.JButton;
+
+public class Cal extends JFrame implements ActionListener {
+
     String date; // Contains the current date
     JTextArea writing_area = new JTextArea(); // The writing area
     //    boolean weekOfYearVisible = True;
@@ -18,15 +20,17 @@ public class Cal extends JFrame
     SimpleDateFormat date_format = new SimpleDateFormat("YYYY.MM.dd"); // The date format
 
     // The calendar class
-    Cal()
-    {
+    Cal() {
+
+        setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
         date = getFormatedDate(); 
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.addMouseListener( new MouseAdapter() { } );
         JScrollPane scroll_pane = new JScrollPane();
         
         // Put scrollbars on
-        scroll_pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scroll_pane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
         calendar.addPropertyChangeListener(new selected_day()); 
         
         // Lets add the number of the weeks to the calendar
@@ -34,12 +38,52 @@ public class Cal extends JFrame
         addWindowListener(new window_interaction());
         
         // Set the size of the writing area
-        writing_area.setColumns(20);
-        writing_area.setRows(20);
+        writing_area.setColumns(25);
+        writing_area.setRows(1);
         scroll_pane.setViewportView(writing_area);
-        panel.add(scroll_pane, BorderLayout.SOUTH);
-        panel.add(calendar, BorderLayout.NORTH);
+
+         // Setup and configure buttons
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        JButton returnButton = new JButton("Return");
+        
+        returnButton.setPreferredSize(new Dimension(100, 50));
+        
+        buttonPanel.add(returnButton);
+        
+        returnButton.addActionListener(this);
+        returnButton.setActionCommand("return");
+        // END Setup and configure buttons
+
+        panel.add(calendar);
+        panel.add(scroll_pane);
+        panel.add(buttonPanel);
+        
         setContentPane(panel);
+
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        String action = ae.getActionCommand();
+        if (action.equals("return")) {
+
+            // Debug code
+            System.out.println("returnButton pressed");
+
+            // Save current data
+            System.out.println("saving current event");
+            setText(date,writing_area.getText());
+            
+            System.out.println("starting task list");
+
+            // Dispose of the current frame
+            this.dispose();
+
+            // Call the task list again
+            JFrame tasklist = new TaskList();
+            tasklist.pack();
+            tasklist.setVisible(true);
+        }
 
     }
 
@@ -69,13 +113,13 @@ public class Cal extends JFrame
     {
         try
         {
-            FileWriter file = new FileWriter("./" + date);
+            FileWriter file = new FileWriter("./data/" + date);
             file.write(text);
             file.close();
         }
         catch (Exception e)
         {
-            System.out.println("Villa");
+            System.out.println("Error");
         }
     }
 
@@ -104,7 +148,7 @@ public class Cal extends JFrame
     // Get the text from a date file if it exists. Else return an empty string
     public String getText(String date)
     {
-        File file = new File("./" + date);
+        File file = new File("./data/" + date);
         if (!file.exists())
             return "";
         else {
@@ -118,8 +162,8 @@ public class Cal extends JFrame
             }
             catch (Exception e)
             {
-                System.out.println("Villa");
-                return "Villa";
+                System.out.println("Error");
+                return "Error";
             }
             String return_string = new String(temp);
             return return_string;
