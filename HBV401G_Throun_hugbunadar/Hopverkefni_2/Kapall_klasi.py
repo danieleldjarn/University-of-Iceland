@@ -19,7 +19,7 @@ class Spil_node(object):
     	return self.gildi == other.gildi and self.sort == other.sort
     def __repr__(self):
         'Strengjaframmsetning spils'
-        return "<%s %s>" % (self.sort, self.gildi)
+        return "%s%s" % (self.sort, self.gildi)
 #-------------------------------------------------------------------------------
 
 ################################################################################
