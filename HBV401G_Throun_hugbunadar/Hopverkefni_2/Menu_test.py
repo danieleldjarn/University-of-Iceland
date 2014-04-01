@@ -5,7 +5,7 @@ import wx
 import sys
 
 class Highscores(wx.Frame):
-    def __init__(self, parent, id, title,time =-1):
+    def __init__(self, parent, id, title,time =-1,show=True):
         wx.Frame.__init__(self, parent, id, title, size=(330, 230))
 
         hbox = wx.BoxSizer(wx.HORIZONTAL)
@@ -36,7 +36,7 @@ class Highscores(wx.Frame):
         panel.SetSizer(hbox)
         
         self.Centre()
-        self.Show(True)
+        self.Show(show)
 
     #opnar highscores file og skilar gildum úr honum í röðuðum lista
     def getScoreList(self):
