@@ -344,7 +344,7 @@ class Tree(object):
 			return node.left is T.nil and node.right is T.nil and node is not T.nil
 		return False
 		
-		def card_pos(T, card):
+	def card_pos(T, card):
 		'Sækir staðsetningu spils í tréi'
 		"""
                    10                20                30          
