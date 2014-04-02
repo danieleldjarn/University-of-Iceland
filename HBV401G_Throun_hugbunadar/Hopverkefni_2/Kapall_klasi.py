@@ -368,6 +368,8 @@ class Tree(object):
 			else:
 				if T.subtree_card_pos(T.root_3, card):
 					return str(3)+T.subtree_card_pos(T.root_3, card)
+		print "Spil ekki til"
+		return ""
 
 	def subtree_card_pos(T, root, card):
 		'Sækir staðsetningu spils í undirtréi ef hún er til'
