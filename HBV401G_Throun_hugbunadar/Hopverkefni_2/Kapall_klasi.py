@@ -343,4 +343,56 @@ class Tree(object):
 		if type(node) is type(T.nil):
 			return node.left is T.nil and node.right is T.nil and node is not T.nil
 		return False
+		
+		def card_pos(T, card):
+		'Sækir staðsetningu spils í tréi'
+		"""
+                   10                20                30          
+           	  /   \             /  \              /  \   
+           	 11    12          21   22          31    32           
+           	/   \ /   \       /   \ /  \        /  \  /  \ 
+       	       13    14    15    23   24   25     33    34   35        
+    	      /   \ /  \ /  \   /  \ /  \ /  \   /  \  /  \  /  \ 
+    	     16    17   18    26    27   28    36    37    38    39 
+		"""
+		if type(card) is not type(T.nil) or card is T.nil:
+			print card," ekki löglegt spil"
+			return None
+		for i in range(3):
+			if i == 0:
+				if T.subtree_card_pos(T.root_1, card):
+					return str(1)+T.subtree_card_pos(T.root_1, card)
+			elif i == 1:
+				if T.subtree_card_pos(T.root_2, card):
+					return str(2)+T.subtree_card_pos(T.root_2, card)
+			else:
+				if T.subtree_card_pos(T.root_3, card):
+					return str(3)+T.subtree_card_pos(T.root_3, card)
+
+	def subtree_card_pos(T, root, card):
+		'Sækir staðsetningu spils í undirtréi ef hún er til'
+		if root is not T.nil:
+			if card is root: return "0"
+			if root.left is not T.nil:
+				if card is root.left: return "1"
+				if root.left.right is not T.nil:
+					if card is root.left.right:	return "4"
+					if card is root.left.right.right: return "8"
+					if card is root.left.right.left: return "7"
+				if root.left.left is not T.nil:
+					if card is root.left.left: return "3"
+					if card is root.left.left.left:	return "6"
+					if card is root.left.left.right: return "7"
+
+			if root.right is not T.nil:
+				if card is root.right: return "2"
+				if root.right.left is not T.nil:
+					if card is root.right.left: return "4"
+					if card is root.right.left.left: return "7"
+					if card is root.right.left.right: return "8"
+				if root.right.right is not T.nil:
+					if card is root.right.right: return "5"
+					if card is root.right.right.left: return "8"
+					if card is root.right.right.right and root is T.root_3: return "9"
+		return ""
 #-------------------------------------------------------------------------------
