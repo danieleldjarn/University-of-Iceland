@@ -4,7 +4,10 @@ import sys
 
 def main():
     weight = {}
+    mstPrim = {}
+    graph = {}
     count = 0
+
     for line in fileinput.input():
         line = line.split()
         if not fileinput.isfirstline():
@@ -12,18 +15,16 @@ def main():
             weight[(int(line[1]), int(line[0]))] = int(line[2])
         else:
             count = int(line[0])
-    #print weight
-    graph = {}
+
     for i in xrange(0, count):
         graph[i] = {'key': sys.maxint, 'parent': None}
     graph[0]['key'] = 0
-    mstPrim = {}
-    #print graph
+
     while graph:
-        lowestKey = getLowestKey(graph)
-        vertex = graph.pop(lowestKey)
+        lowestKey = getLowestKey(graph) #lowestKey = integer
+        vertex = graph.pop(lowestKey) #vertex = {'parent': integer, 'key': integer}
         mstPrim[lowestKey] = vertex
-        adjacentNodes = getAllNeighbors(weight, lowestKey)
+        adjacentNodes = getAllNeighbors(weight, lowestKey) #adjacentNodes = [node, ...] node=integer
         for node in adjacentNodes:
             if node in graph.keys() and weight[(lowestKey, node)] < graph[node]['key']:
                 graph[node]['parent'] = lowestKey
