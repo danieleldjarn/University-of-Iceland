@@ -69,6 +69,19 @@ class Stokkur(object):
         'Skilar True þþaa stokkurinn sé ekki tómur'
         return (self.spilafjoldi > 0)
 
+    def get_copy(self):
+        'Skilar afriti af stokknum'
+        copy = list(self.stokkur)
+        return copy
+
+    def peek(self):
+        'Skilar efsta spili í stokknum'
+        return self.stokkur[-1]
+
+    def count(self):
+        'Skilar fjölda spila í stokknum'
+        return len(self.stokkur)
+
     def __repr__(self):
         'Strengjaframmsetning stokks'
         s = ""
@@ -347,13 +360,13 @@ class Tree(object):
 	def card_pos(T, card):
 		'Sækir staðsetningu spils í tréi'
 		"""
-                   10                20                30          
+                10               20               30          
            	  /   \             /  \              /  \   
            	 11    12          21   22          31    32           
            	/   \ /   \       /   \ /  \        /  \  /  \ 
-       	       13    14    15    23   24   25     33    34   35        
-    	      /   \ /  \ /  \   /  \ /  \ /  \   /  \  /  \  /  \ 
-    	     16    17   18    26    27   28    36    37    38    39 
+       	   13    14    15    23   24   25     33    34   35        
+    	  /   \ /  \ /  \   /  \ /  \ /  \   /  \  /  \  /  \ 
+    	 16    17   18    26    27   28    36    37    38    39 
 		"""
 		if type(card) is not type(T.nil) or card is T.nil:
 			print card," ekki löglegt spil"
