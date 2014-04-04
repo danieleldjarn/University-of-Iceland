@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 import pygame.mouse as mouse
 import Kapall_klasi as game
+import Menu_test
 
 WIDTH, HEIGHT = 800, 600
 CARDW, CARDH = 72, 96
@@ -87,25 +88,28 @@ def nextCardIsValid(next, current):
         return True
     return False
 
-def checkCard(tree, trash, cards, rect):
+def checkCard(tree, trash, cards, rects, rect):
     for card in cards:
         if rect is cards[card][0] and nextCardIsValid(int(str(trash.get_copy()[-1])[1:]), cards[card][2]):
-            print 'lel'
             number = cards[card][2]
             removeables = tree.get_removeables().get_copy()
-            print removeables
             for rmv in removeables:
                 if str(rmv)[1:] == str(number):
-                    print 'dingus'
                     trash.add(rmv)
                     tree.update_tree(rmv)
                     break
-            del[cards[card][0]]
+            rects.remove(cards[card][0])
             del[cards[card]]
             break
 
 def refreshCards(tree, cards):
     removeables = tree.get_removeables()
+    bla = []
+    for i in removeables.stokkur:
+        bla.append(tree.card_pos(i))
+    bla.sort()
+    print bla
+
     while removeables.has_next():
         tmp = removeables.get_next()
         pos = int(tree.card_pos(tmp))
@@ -156,12 +160,12 @@ def main():
             elif event.type == MOUSEBUTTONDOWN:
                 for rect in rects:
                     if rect.collidepoint(mouse.get_pos()):
-                        checkCard(tree, trash, cards, rect)
+                        checkCard(tree, trash, cards, rects, rect)
                         refreshCards(tree, cards)
+                        print len(cards)
                 if deckRect.collidepoint(mouse.get_pos()):
                     if loseCondition(tree, deck):
                         lostGame = True
-                        print 'megas'
                         break
                     drawCard(deck, trash)
                     refreshCards(tree, cards)

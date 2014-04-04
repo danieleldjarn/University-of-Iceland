@@ -312,19 +312,19 @@ class Tree(object):
 					xss += [root.right.left]
 
 				if root.right.right is not T.nil:
-					if root.right.right.right is not T.nil:
+					if root.right.right.right is not T.nil and root.right.right.right not in xss:
 						xss += [root.right.right.right]
-					if root.right.right.left is not T.nil:
+					if root.right.right.left is not T.nil and root.right.right.left not in xss: 
 						xss += [root.right.right.left]
 
 				if root.right.left is not T.nil:
 					if root.right.left.right is not T.nil and root.right.left.right not in xss:
 						xss += [root.right.left.right]
-					if root.right.left.left is not T.nil:
+					if root.right.left.left is not T.nil and root.right.left.left not in xss:
 						xss += [root.right.left.left]
 
 			if root.left is not T.nil:
-				if T.is_removeable(root.left.left):
+				if T.is_removeable(root.left.left)and root.left.left not in xss:
 					xss += [root.left.left]
 				if T.is_removeable(root.left.right) and root.left.right not in xss:
 					xss += [root.left.right]
