@@ -311,43 +311,34 @@ class Tree(object):
 				if T.is_removeable(root.right.left):
 					xss += [root.right.left]
 
+				if root.right.right is not T.nil:
+					if root.right.right.right is not T.nil:
+						xss += [root.right.right.right]
+					if root.right.right.left is not T.nil:
+						xss += [root.right.right.left]
+
+				if root.right.left is not T.nil:
+					if root.right.left.right is not T.nil and root.right.left.right not in xss:
+						xss += [root.right.left.right]
+					if root.right.left.left is not T.nil:
+						xss += [root.right.left.left]
+
 			if root.left is not T.nil:
 				if T.is_removeable(root.left.left):
 					xss += [root.left.left]
-				if root.right is not T.nil:
-					if T.is_removeable(root.left.right) and root.left.right is not root.right.left:
-						xss += [root.left.right]
-
-			if root.right is not T.nil and root.right.right is not T.nil:
-				if root.right.right.right is not T.nil:
-					xss += [root.right.right.right]
-				if root.right.right.left is not T.nil:
-					xss += [root.right.right.left]
-
-			if root.left is not T.nil and root.right is not T.nil and root.left.right is not T.nil:
-				if root.right.right is not T.nil:
-					if root.left.right.right is not T.nil and root.left.right.right is not root.right.right.left:
-						xss += [root.left.right.right]
-			if root.right is not T.nil and root.left is not T.nil and root.right.left is not T.nil:
-				if root.left.right is not T.nil and root.right.right is not T.nil:
-					if root.right.left.right is not T.nil and root.right.left.right is not root.left.right.right and root.right.left.right is not root.right.right.left:
-						xss += [root.right.left.right]
-
-			if root.left is not T.nil and root.left.left is not T.nil:
-				if root.left.left.right is not T.nil:
-					xss += [root.left.left.right]
-			if root.left is not T.nil and root.left.right is not T.nil:
+				if T.is_removeable(root.left.right) and root.left.right not in xss:
+					xss += [root.left.right]
 				if root.left.left is not T.nil:
-					if root.left.right.left is not T.nil and root.left.right.left is not root.left.left.right:
+					if root.left.left.right is not T.nil and root.left.left.right not in xss:
+						xss += [root.left.left.right]
+					if root is T.root_1:
+						if root.left.left.left is not T.nil:
+							xss += [root.left.left.left]
+				if root.left.right is not T.nil:
+					if root.left.right.left is not T.nil and root.left.right.left not in xss:
 						xss += [root.left.right.left]
-			if root.right is not T.nil and root.left is not T.nil and root.right.left is not T.nil:
-				if root.left.left is not T.nil and root.left.right is not T.nil:
-					if root.right.left.left is not T.nil and root.right.left.left is not root.left.right.left and root.right.left.left is not root.left.left.right:
-						xss += [root.right.left.left]
-
-			if root is T.root_1 and root.left is not T.nil and root.left.left is not T.nil:
-				if root.left.left.left is not T.nil:
-					xss += [root.left.left.left]
+					if root.left.right.right is not T.nil and root.left.right.right not in xss:
+						xss += [root.left.right.right]
 
 		return xss
 
