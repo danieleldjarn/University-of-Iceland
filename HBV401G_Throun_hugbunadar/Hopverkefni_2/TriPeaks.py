@@ -88,19 +88,19 @@ def nextCardIsValid(next, current):
     return False
 
 def checkCard(tree, trash, cards, rect):
-    print str(trash.get_copy()[-1])[1:]
-    print trash.get_copy()
     for card in cards:
         if rect is cards[card][0] and nextCardIsValid(int(str(trash.get_copy()[-1])[1:]), cards[card][2]):
             print 'lel'
             number = cards[card][2]
             removeables = tree.get_removeables().get_copy()
+            print removeables
             for rmv in removeables:
                 if str(rmv)[1:] == str(number):
                     print 'dingus'
                     trash.add(rmv)
                     tree.update_tree(rmv)
                     break
+            del[cards[card][0]]
             del[cards[card]]
             break
 
@@ -109,16 +109,27 @@ def refreshCards(tree, cards):
     while removeables.has_next():
         tmp = removeables.get_next()
         pos = int(tree.card_pos(tmp))
-        cards[pos][2] = int(str(tmp)[1:])
-        cards[pos][1] = loadCardImage(str(tmp))
+        if pos in cards:
+            cards[pos][2] = int(str(tmp)[1:])
+            cards[pos][1] = loadCardImage(str(tmp))
 
 def drawCard(deck, trash):
     trash.add(deck.get_next())
 
+def loseCondition(tree, deck):
+    if tree.get_removeables() != [] and deck.count() is 0:
+        return True
+    return False
+
+def winCondition(tree):
+    if tree.get_removeables() == []:
+        return True
+    return False
 
 def main():
     screen, background, font = initPygame(WIDTH, HEIGHT)
     tree, deck, trash = initTriPeaks()
+    lostGame = False
     deckRect = Rect(DECKLOCATION[0], DECKLOCATION[1], CARDW, CARDH)
     
     # Set background
@@ -132,37 +143,10 @@ def main():
         rects.append(cards[card][0])
     
     trash.add(deck.get_next())
-    # removeables = tree.get_removeables()
-    # while removeables.has_next():
-    #     tmp = removeables.get_next()
-    #     pos = int(tree.card_pos(tmp))
-    #     cards[pos][2] = int(str(tmp)[1:])
-    #     cards[pos][1] = loadCardImage(str(tmp))
     refreshCards(tree, cards)
-
-    #     images.append(loadCardImage(str(removeables.get_next()))[0])
-    # trash.add(deck.get_next())
-
-    # images = []
-
-    # print str(trash.stokkur[-1])
-    # img, imgRect = loadCardImage(str(trash.stokkur[-1]))
-
-
-    # images = images[::-1]
-    # print images
-
-    # imgRect.topleft = 20, 10
-
-    # img2, imgRect2 = loadCardImage("deck")
-    # imgRect2.topleft = 20, 100
-
-    # rects = [imgRect, imgRect2]
 
     clock = pygame.time.Clock()
 
-    # xCoordinate = 20
-    # direction = "left"
     while 1:
         clock.tick(60)
 
@@ -175,23 +159,19 @@ def main():
                         checkCard(tree, trash, cards, rect)
                         refreshCards(tree, cards)
                 if deckRect.collidepoint(mouse.get_pos()):
-                    refreshCards(tree, cards)
+                    if loseCondition(tree, deck):
+                        lostGame = True
+                        print 'megas'
+                        break
                     drawCard(deck, trash)
-
-
-                        # print("You clicked on {}".format(rect))
-
-
-        # if xCoordinate > 400:
-        #     direction = "right"
-        # elif xCoordinate < 0:
-        #     direction = "left"
-
-        # if direction == "left":
-        #     xCoordinate += 2
-        # else:
+                    refreshCards(tree, cards)
+        if lostGame:
+            while(True):
+                for event in pygame.event.get():
+                    if event.type == QUIT:
+                        return
+                            
         screen.blit(background, (0, 0))
-        #     xCoordinate -= 2
 
         screen.blit(backsideImage, DECKLOCATION)
         cardsLeft = font.render(str(deck.count()), 0, (0, 0, 0))
@@ -200,26 +180,11 @@ def main():
         screen.blit(loadCardImage(trashTop), TRASHLOCATION)
         for card in cards:
             screen.blit(cards[card][1], cards[card][0].topleft)
-            # screen.blit(card[1], card[0].topleft)
 
-        # screen.blit(background, (0, 0))
-        # screen.blit(img, (xCoordinate, 10))
-        # for width in firstRowWidth:
-        #     screen.blit(img2, (width, 10))
-
-        # for width in secondRowWidth: 
-        #     screen.blit(img2, (width, 10+CARDH/2))        
-
-        # for width in thirdRowWidth: 
-        #     screen.blit(img2, (width, 10+CARDH))
-
-        # # i=1;
-        # for i in range(0, len(fourthRowWidth)):
-        #     screen.blit(images[i], (fourthRowWidth[i], 10+3*CARDH/2))
-      
         pygame.display.flip()
 
-        # if loseCondition()
+        if winCondition(tree):
+            print "JEI"
 
 
 if __name__ == '__main__':
