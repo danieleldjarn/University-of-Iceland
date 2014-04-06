@@ -86,15 +86,12 @@ def main(noNodes, edges, neighbors):
     tmpEdges = {}
     counter = 0
     for edge in edges:
-        #print edge
         tmpResult = []
         if edges[edge]['partOfMST']:
-            start = time.time()
+            
             tmpEdges = dict(edges)
-            end = time.time()
-            #print "creationtime"
-            #print end-start
-            start = time.time()
+            
+           
             neighborsOriginal1 = copy.deepcopy(neighbors[edge[0]])
             neighborsOriginal2 = copy.deepcopy(neighbors[edge[1]])
         
@@ -102,53 +99,20 @@ def main(noNodes, edges, neighbors):
             neighborsNew2 = copy.deepcopy(neighborsOriginal2)
             neighborsNew1.remove(edge[1])
             neighborsNew2.remove(edge[0])
-            '''print "post removal"
-            print "origin1: ", neighborsOriginal1
-            print "origin2: ", neighborsOriginal2
-            print "new1: ", neighborsNew1
-            print "new2: ", neighborsNew2'''
+            
             neighbors[edge[0]] = neighborsNew1
             neighbors[edge[1]] = neighborsNew2
-            '''print "neigh0: ", neighbors[edge[0]]
-            print "neigh1: ", neighbors[edge[1]]
-            print "all good now"'''
-            '''print "neigh0: ", neighbors[edge[0]]
-            print "neigh1: ", neighbors[edge[1]]'''
-            end = time.time()
-            #print "neighbors"
-            #print end-start
-            #break
-            start = time.time()
-            #print counter
-            #print edge
-            #print "neighbors"
-            #print neighbors
-            #print id(neighbors)
-            #print id(neighbors[0])
-            #tmpNeighbors[edge[0]].remove(edge[1])
-            #tmpNeighbors[edge[1]].remove(edge[0])
-            '''print neighbors
-            print "edges"
-            print tmpEdges
-            print "----"
-            print edges
-            print "-----"'''
+            
             tmpEdges.pop(edge)
-            '''print tmpEdges
-            print "----"
-            print edges
-            break'''
-            #print tmpEdges
-            #print edge
-            #print "new"
+            
             weight = primLite(noNodes, tmpEdges, neighbors)
             tmpResult.append(edge[0])
             tmpResult.append(edge[1])
             tmpResult.append(weight)
-            #tmpEdges.clear()
+            
             neighbors[edge[0]] = neighborsOriginal1
             neighbors[edge[1]] = neighborsOriginal2
-            #print end-start
+            
         if tmpResult:
             result.append(tmpResult)
         counter += 1
