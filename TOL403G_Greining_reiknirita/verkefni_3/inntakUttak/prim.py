@@ -3,50 +3,82 @@ import sys
 import time
 import copy
 import heapq
-from collections import defaultdict
 
 
 def main(noNodes, edges):
     mstPrim = {}
     graph = {}
-    heap = []
+    priQueue = []
 
     for i in xrange(0, noNodes):
         graph[i] = {'key': sys.maxint, 'parent': None}
     graph[0]['key'] = 0
 
-    for i in xrange(0, noNodes):
-        heapq.heappush(heap, [i, sys.maxint, None])
-    print heap
+    heapq.heappush(priQueue, [0, 0]) #key, node
+    heapPopTime = 0
+    checkIfNodeInGraphTime = 0
+    adjacentNodesTime = 0
+    findNextPathTime = 0
 
     while graph:
-        lowestKey = getLowestKey(graph) #lowestKey = integer
-        vertex = graph.pop(lowestKey) #vertex = {'parent': integer, 'key': integer}
-        mstPrim[lowestKey] = vertex
-        if mstPrim[lowestKey]['parent'] != None:
-            parent = mstPrim[lowestKey]['parent']
-            if parent < lowestKey:
-                edges[(parent, lowestKey)]['partOfMST'] = True
+        #lowestKey = getLowestKey(graph) #lowestKey = integer
+        #print graph
+        #print "lowest key/node: ", lowestKey
+        #print priQueue
+        start = time.time()
+        lowestNode = heapq.heappop(priQueue)[1]
+        end = time.time()
+        heapPopTime += end-start
+        start = time.time()
+        while True:
+            if lowestNode in graph:
+                break
             else:
-                edges[(lowestKey, parent)]['partOfMST'] = True
-
-        adjacentNodes = getAllNeighbors(edges, lowestKey) #adjacentNodes = [node, ...] node=integer
+                lowestNode = heapq.heappop(priQueue)[1]
+        end = time.time()
+        checkIfNodeInGraphTime += end-start
+        #print "lowest Node: ", lowestNode
+        #print "------------"
+        #print "INTERVAL"
+        #print "------------"
+        vertex = graph.pop(lowestNode) #vertex = {'parent': integer/None, 'key': integer}
+        mstPrim[lowestNode] = vertex
+        if mstPrim[lowestNode]['parent'] != None:
+            parent = mstPrim[lowestNode]['parent']
+            if parent < lowestNode:
+                edges[(parent, lowestNode)]['partOfMST'] = True
+            else:
+                edges[(lowestNode, parent)]['partOfMST'] = True
+        start = time.time()
+        adjacentNodes = getAllNeighbors(edges, lowestNode) #adjacentNodes = [node, ...] node=integer
+        end = time.time()
+        adjacentNodesTime += end-start
+        start = time.time()
         for node in adjacentNodes:
-            if lowestKey < node:
-                if node in graph.keys() and edges[(lowestKey, node)]['weight'] < graph[node]['key']:
-                    graph[node]['parent'] = lowestKey
-                    graph[node]['key'] = edges[(lowestKey, node)]['weight']
+            if lowestNode < node:
+                if node in graph.keys() and edges[(lowestNode, node)]['weight'] < graph[node]['key']:
+                    graph[node]['parent'] = lowestNode
+                    graph[node]['key'] = edges[(lowestNode, node)]['weight']
+                    heapq.heappush(priQueue, [edges[(lowestNode, node)]['weight'], node])
             else:
-                if node in graph.keys() and edges[(node, lowestKey)]['weight'] < graph[node]['key']:
-                    graph[node]['parent'] = lowestKey
-                    graph[node]['key'] = edges[(node, lowestKey)]['weight']
+                if node in graph.keys() and edges[(node, lowestNode)]['weight'] < graph[node]['key']:
+                    graph[node]['parent'] = lowestNode
+                    graph[node]['key'] = edges[(node, lowestNode)]['weight']
+                    heapq.heappush(priQueue, [edges[(node, lowestNode)]['weight'], node])
+        end = time.time()
+        findNextPathTime += end-start
+
+    print "heapPopTime: ", heapPopTime
+    print "checkIfNodeInGraphTime: ", checkIfNodeInGraphTime
+    print "adjacentNodesTime: ", adjacentNodesTime
+    print "findNextPathTime: ", findNextPathTime
 
     primWeight = 0
     for node in mstPrim:
         #print node, mstPrim[node]
         primWeight += mstPrim[node]['key']
 
-    result = []
+    '''result = []
     for edge in edges:
         tmpEdges = edges.copy()
         tmpResult = []
@@ -57,11 +89,11 @@ def main(noNodes, edges):
             tmpResult.append(edge[1])
             tmpResult.append(weight)
         if tmpResult:
-            result.append(tmpResult)
+            result.append(tmpResult)'''
     print primWeight
-    result = sorted(result, key=lambda line: (line[0],line[1]))
+    '''result = sorted(result, key=lambda line: (line[0],line[1]))
     for line in result:
-        print line[0], line[1], line[2]
+        print line[0], line[1], line[2]'''
 
 def primLite(noNodes, edges):
     mstPrim = {}
