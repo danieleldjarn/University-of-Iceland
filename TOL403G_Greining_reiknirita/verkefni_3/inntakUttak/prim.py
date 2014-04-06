@@ -76,13 +76,20 @@ def main(noNodes, edges, neighbors):
     tmpNeighbors = {}
     tmpEdges = {}
     counter = 0
+    creationTime = 0
+    neighborTime = 0
+    restTime = 0
+    startEverything = time.time()
     for edge in edges:
         tmpResult = []
         if edges[edge]['partOfMST']:
+            start = time.time()
+            #tmpEdges = dict(edges)
+            edges[edge]['partOfSolution'] = False
+            end = time.time()
+            creationTime += end-start
             
-            tmpEdges = dict(edges)
-            
-           
+            start = time.time()
             neighborsOriginal1 = copy.deepcopy(neighbors[edge[0]])
             neighborsOriginal2 = copy.deepcopy(neighbors[edge[1]])
         
@@ -93,24 +100,43 @@ def main(noNodes, edges, neighbors):
             
             neighbors[edge[0]] = neighborsNew1
             neighbors[edge[1]] = neighborsNew2
+            end = time.time()
+            neighborTime += end-start
+
             
-            tmpEdges.pop(edge)
             
-            weight = primLite(noNodes, tmpEdges, neighbors)
+            #tmpEdges.pop(edge)
+
+            
+
+            start = time.time()
+            
+            weight = primLite(noNodes, edges, neighbors)
+            #weight = 3
             tmpResult.append(edge[0])
             tmpResult.append(edge[1])
             tmpResult.append(weight)
             
             neighbors[edge[0]] = neighborsOriginal1
             neighbors[edge[1]] = neighborsOriginal2
+
+            end = time.time()
+            restTime += end-start
+            edges[edge]['partOfSolution'] = True
             
         if tmpResult:
             result.append(tmpResult)
         counter += 1
+    endEverything = time.time()
+    print "NEWTIMEs"
+    print "creationTime: ", creationTime
+    print "neighborTime: ", neighborTime
+    print "restTime: ", restTime
+    print "everything: ", endEverything-startEverything
     print primWeight
-    result = sorted(result, key=lambda line: (line[0],line[1]))
+    '''result = sorted(result, key=lambda line: (line[0],line[1]))
     for line in result:
-        print line[0], line[1], line[2]
+        print line[0], line[1], line[2]'''
 
 def primLite(noNodes, edges, neighbors):
     mstPrim = {}
@@ -142,12 +168,12 @@ def primLite(noNodes, edges, neighbors):
         for node in adjacentNodes:
             
             if lowestNode < node:
-                if node in graph and edges[(lowestNode, node)]['weight'] < graph[node]['key']:
+                if node in graph and edges[(lowestNode, node)]['weight'] < graph[node]['key'] and edges[(lowestNode, node)]['partOfSolution']:
                     graph[node]['parent'] = lowestNode
                     graph[node]['key'] = edges[(lowestNode, node)]['weight']
                     heapq.heappush(priQueue, [edges[(lowestNode, node)]['weight'], node])
             else:
-                if node in graph and edges[(node, lowestNode)]['weight'] < graph[node]['key']:
+                if node in graph and edges[(node, lowestNode)]['weight'] < graph[node]['key'] and edges[(node, lowestNode)]['partOfSolution']:
                     graph[node]['parent'] = lowestNode
                     graph[node]['key'] = edges[(node, lowestNode)]['weight']
                     heapq.heappush(priQueue, [edges[(node, lowestNode)]['weight'], node])
@@ -166,7 +192,7 @@ if __name__ == '__main__':
     for line in fileinput.input():
         line = line.split()
         if not fileinput.isfirstline():
-            edges[(int(line[0]), int(line[1]))] = {'weight': int(line[2]), 'partOfMST': False}
+            edges[(int(line[0]), int(line[1]))] = {'weight': int(line[2]), 'partOfMST': False, 'partOfSolution': True}
             try:
                 neighbors[int(line[0])].append(int(line[1]))
             except:
