@@ -2,15 +2,22 @@ import fileinput
 import sys
 import time
 import copy
+import heapq
+from collections import defaultdict
 
 
 def main(noNodes, edges):
     mstPrim = {}
     graph = {}
+    heap = []
 
     for i in xrange(0, noNodes):
         graph[i] = {'key': sys.maxint, 'parent': None}
     graph[0]['key'] = 0
+
+    for i in xrange(0, noNodes):
+        heapq.heappush(heap, [i, sys.maxint, None])
+    print heap
 
     while graph:
         lowestKey = getLowestKey(graph) #lowestKey = integer
