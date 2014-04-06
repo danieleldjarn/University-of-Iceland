@@ -21,10 +21,6 @@ def main(noNodes, edges, neighbors):
     findNextPathTime = 0
 
     while graph:
-        #lowestKey = getLowestKey(graph) #lowestKey = integer
-        #print graph
-        #print "lowest key/node: ", lowestKey
-        #print priQueue
         start = time.time()
         lowestNode = heapq.heappop(priQueue)[1]
         end = time.time()
@@ -37,10 +33,6 @@ def main(noNodes, edges, neighbors):
                 lowestNode = heapq.heappop(priQueue)[1]
         end = time.time()
         checkIfNodeInGraphTime += end-start
-        #print "lowest Node: ", lowestNode
-        #print "------------"
-        #print "INTERVAL"
-        #print "------------"
         vertex = graph.pop(lowestNode) #vertex = {'parent': integer/None, 'key': integer}
         mstPrim[lowestNode] = vertex
         if mstPrim[lowestNode]['parent'] != None:
@@ -50,10 +42,9 @@ def main(noNodes, edges, neighbors):
             else:
                 edges[(lowestNode, parent)]['partOfMST'] = True
         start = time.time()
-        #adjacentNodes = getAllNeighbors(edges, lowestNode) #adjacentNodes = [node, ...] node=integer
-        #print adjacentNodes
+        
         adjacentNodes = neighbors[lowestNode]
-        #print newAdjacentNodes
+        
         end = time.time()
         adjacentNodesTime += end-start
         start = time.time()
@@ -131,50 +122,25 @@ def primLite(noNodes, edges, neighbors):
     graph[0]['key'] = 0
 
     heapq.heappush(priQueue, [0, 0]) #key, node
-    '''heapPopTime = 0
-    checkIfNodeInGraphTime = 0
-    adjacentNodesTime = 0
-    findNextPathTime = 0'''
+    
 
     while graph:
-        #lowestKey = getLowestKey(graph) #lowestKey = integer
-        #print graph
-        #print "lowest key/node: ", lowestKey
-        #print priQueue
-        #start = time.time()
-        #print priQueue
-        #print graph
+        
         lowestNode = heapq.heappop(priQueue)[1]
-        #end = time.time()
-        #heapPopTime += end-start
-        #start = time.time()
+        
         while True:
             if lowestNode in graph:
                 break
             else:
                 lowestNode = heapq.heappop(priQueue)[1]
-        #end = time.time()
-        #checkIfNodeInGraphTime += end-start
-        #print "lowest Node: ", lowestNode
-        #print "------------"
-        #print "INTERVAL"
-        #print "------------"
+        
         vertex = graph.pop(lowestNode) #vertex = {'parent': integer/None, 'key': integer}
         mstPrim[lowestNode] = vertex
-        #start = time.time()
-        #adjacentNodes = getAllNeighbors(edges, lowestNode) #adjacentNodes = [node, ...] node=integer
-        #print adjacentNodes
+        
         adjacentNodes = neighbors[lowestNode]
-        #print newAdjacentNodes
-        #end = time.time()
-        #adjacentNodesTime += end-start
-        #start = time.time()
-        #print lowestNode
-        #print adjacentNodes
+        
         for node in adjacentNodes:
-            #print node
-            #print lowestNode
-            #print edges
+            
             if lowestNode < node:
                 if node in graph and edges[(lowestNode, node)]['weight'] < graph[node]['key']:
                     graph[node]['parent'] = lowestNode
@@ -191,34 +157,6 @@ def primLite(noNodes, edges, neighbors):
         #print node, mstPrim[node]
         primWeight += mstPrim[node]['key']
     return primWeight
-    '''print "removedEdge: "
-    print removedEdge
-    print "weight:"
-    print primWeight'''
-    
-
-def getLowestKey(graph):
-    lowestKey = 0
-    lowestKeyWeight = sys.maxint
-    for key in graph.keys():
-        if graph[key]['key'] < lowestKeyWeight:
-            lowestKeyWeight = graph[key]['key']
-            lowestKey = key
-    return lowestKey
-
-# edges is a dictionary that stores the weight of a path between two vertexes.
-# node is a given vertex
-# getAllNeighbors returns all adjacent vertixes of node
-def getAllNeighbors(edges, node):
-    neighbors = []
-    #print node
-    for path in edges:
-        #print path
-        if path[0] == node:
-            neighbors.append(path[1])
-        if path[1] == node:
-            neighbors.append(path[0])
-    return neighbors
 
 if __name__ == '__main__':
     start = time.time()
