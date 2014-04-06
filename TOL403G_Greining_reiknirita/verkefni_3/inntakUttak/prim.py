@@ -38,15 +38,25 @@ def main(noNodes, edges):
     for node in mstPrim:
         #print node, mstPrim[node]
         primWeight += mstPrim[node]['key']
-    print "RESULT:"
-    print primWeight
+
+    result = []
     for edge in edges:
         tmpEdges = edges.copy()
+        tmpResult = []
         if edges[edge]['partOfMST']:
             tmpEdges.pop(edge)
-            primLite(noNodes, tmpEdges, edge)
+            weight = primLite(noNodes, tmpEdges)
+            tmpResult.append(edge[0])
+            tmpResult.append(edge[1])
+            tmpResult.append(weight)
+        if tmpResult:
+            result.append(tmpResult)
+    print primWeight
+    result = sorted(result, key=lambda line: (line[0],line[1]))
+    for line in result:
+        print line[0], line[1], line[2]
 
-def primLite(noNodes, edges, removedEdge):
+def primLite(noNodes, edges):
     mstPrim = {}
     graph = {}
 
@@ -73,6 +83,7 @@ def primLite(noNodes, edges, removedEdge):
     for node in mstPrim:
         #print node, mstPrim[node]
         primWeight += mstPrim[node]['key']
+    return primWeight
     '''print "removedEdge: "
     print removedEdge
     print "weight:"
