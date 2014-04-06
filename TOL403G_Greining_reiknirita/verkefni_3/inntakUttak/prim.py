@@ -59,12 +59,12 @@ def main(noNodes, edges, neighbors):
         start = time.time()
         for node in adjacentNodes:
             if lowestNode < node:
-                if node in graph.keys() and edges[(lowestNode, node)]['weight'] < graph[node]['key']:
+                if node in graph and edges[(lowestNode, node)]['weight'] < graph[node]['key']:
                     graph[node]['parent'] = lowestNode
                     graph[node]['key'] = edges[(lowestNode, node)]['weight']
                     heapq.heappush(priQueue, [edges[(lowestNode, node)]['weight'], node])
             else:
-                if node in graph.keys() and edges[(node, lowestNode)]['weight'] < graph[node]['key']:
+                if node in graph and edges[(node, lowestNode)]['weight'] < graph[node]['key']:
                     graph[node]['parent'] = lowestNode
                     graph[node]['key'] = edges[(node, lowestNode)]['weight']
                     heapq.heappush(priQueue, [edges[(node, lowestNode)]['weight'], node])
@@ -82,24 +82,80 @@ def main(noNodes, edges, neighbors):
         primWeight += mstPrim[node]['key']
 
     result = []
+    tmpNeighbors = {}
+    tmpEdges = {}
+    counter = 0
     for edge in edges:
-        tmpNeighbors = neighbors.copy()
-        tmpEdges = edges.copy()
+        #print edge
         tmpResult = []
         if edges[edge]['partOfMST']:
-            tmpNeighbors[edge[0]].remove(edge[1])
-            tmpNeighbors[edge[1]].remove(edge[0])
+            start = time.time()
+            tmpEdges = dict(edges)
+            end = time.time()
+            #print "creationtime"
+            #print end-start
+            start = time.time()
+            neighborsOriginal1 = copy.deepcopy(neighbors[edge[0]])
+            neighborsOriginal2 = copy.deepcopy(neighbors[edge[1]])
+        
+            neighborsNew1 = copy.deepcopy(neighborsOriginal1)
+            neighborsNew2 = copy.deepcopy(neighborsOriginal2)
+            neighborsNew1.remove(edge[1])
+            neighborsNew2.remove(edge[0])
+            '''print "post removal"
+            print "origin1: ", neighborsOriginal1
+            print "origin2: ", neighborsOriginal2
+            print "new1: ", neighborsNew1
+            print "new2: ", neighborsNew2'''
+            neighbors[edge[0]] = neighborsNew1
+            neighbors[edge[1]] = neighborsNew2
+            '''print "neigh0: ", neighbors[edge[0]]
+            print "neigh1: ", neighbors[edge[1]]
+            print "all good now"'''
+            '''print "neigh0: ", neighbors[edge[0]]
+            print "neigh1: ", neighbors[edge[1]]'''
+            end = time.time()
+            #print "neighbors"
+            #print end-start
+            #break
+            start = time.time()
+            #print counter
+            #print edge
+            #print "neighbors"
+            #print neighbors
+            #print id(neighbors)
+            #print id(neighbors[0])
+            #tmpNeighbors[edge[0]].remove(edge[1])
+            #tmpNeighbors[edge[1]].remove(edge[0])
+            '''print neighbors
+            print "edges"
+            print tmpEdges
+            print "----"
+            print edges
+            print "-----"'''
             tmpEdges.pop(edge)
+            '''print tmpEdges
+            print "----"
+            print edges
+            break'''
+            #print tmpEdges
+            #print edge
+            #print "new"
             weight = primLite(noNodes, tmpEdges, neighbors)
             tmpResult.append(edge[0])
             tmpResult.append(edge[1])
             tmpResult.append(weight)
+            #tmpEdges.clear()
+            neighbors[edge[0]] = neighborsOriginal1
+            neighbors[edge[1]] = neighborsOriginal2
+            #print end-start
         if tmpResult:
             result.append(tmpResult)
+        counter += 1
     print primWeight
-    '''result = sorted(result, key=lambda line: (line[0],line[1]))
+    result = sorted(result, key=lambda line: (line[0],line[1]))
     for line in result:
-        print line[0], line[1], line[2]'''
+        print line[0], line[1], line[2]
 
 def primLite(noNodes, edges, neighbors):
     mstPrim = {}
@@ -122,6 +178,8 @@ def primLite(noNodes, edges, neighbors):
         #print "lowest key/node: ", lowestKey
         #print priQueue
         #start = time.time()
+        #print priQueue
+        #print graph
         lowestNode = heapq.heappop(priQueue)[1]
         #end = time.time()
         #heapPopTime += end-start
@@ -139,12 +197,6 @@ def primLite(noNodes, edges, neighbors):
         #print "------------"
         vertex = graph.pop(lowestNode) #vertex = {'parent': integer/None, 'key': integer}
         mstPrim[lowestNode] = vertex
-        if mstPrim[lowestNode]['parent'] != None:
-            parent = mstPrim[lowestNode]['parent']
-            if parent < lowestNode:
-                edges[(parent, lowestNode)]['partOfMST'] = True
-            else:
-                edges[(lowestNode, parent)]['partOfMST'] = True
         #start = time.time()
         #adjacentNodes = getAllNeighbors(edges, lowestNode) #adjacentNodes = [node, ...] node=integer
         #print adjacentNodes
@@ -153,18 +205,19 @@ def primLite(noNodes, edges, neighbors):
         #end = time.time()
         #adjacentNodesTime += end-start
         #start = time.time()
-        print lowestNode
-        print adjacentNodes
+        #print lowestNode
+        #print adjacentNodes
         for node in adjacentNodes:
-            print node
-            print edges
+            #print node
+            #print lowestNode
+            #print edges
             if lowestNode < node:
-                if node in graph.keys() and edges[(lowestNode, node)]['weight'] < graph[node]['key']:
+                if node in graph and edges[(lowestNode, node)]['weight'] < graph[node]['key']:
                     graph[node]['parent'] = lowestNode
                     graph[node]['key'] = edges[(lowestNode, node)]['weight']
                     heapq.heappush(priQueue, [edges[(lowestNode, node)]['weight'], node])
             else:
-                if node in graph.keys() and edges[(node, lowestNode)]['weight'] < graph[node]['key']:
+                if node in graph and edges[(node, lowestNode)]['weight'] < graph[node]['key']:
                     graph[node]['parent'] = lowestNode
                     graph[node]['key'] = edges[(node, lowestNode)]['weight']
                     heapq.heappush(priQueue, [edges[(node, lowestNode)]['weight'], node])
