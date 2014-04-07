@@ -21,19 +21,26 @@
   Verkefni 3 }
 
 \author{
+\textbf{Nemendur:}\\
   Daníel Eldjárn Vilhjálmsson \\
   Einar Smári Einarsson       \\
-  Kjartan Traustason }
+  Kjartan Traustason \\ \\
+\textbf{Kennari:}\\
+Páll Melsteð
+}
 
 \maketitle
-\section*{Inngangur} % (fold)
-\label{sec:inng}
+Athygli er vakin á því að útreiknigar á simple.in gefa annað spantré en lausn kennarans. Sú lausn er þó engu að síður rétt.\\ ö\
 
+Því miður tókst okkur ekki að útfæra endanlegu hugmyndina okkar varðandi hvernig mætti leysa verkefnið án þess að fara í gegnum n-1 MST verkefni. Hugmyndin okkar var þó eftirfarandi:\\ \\
 
-\section*{Kóði} % (fold)
-\label{sec:kodi}
+Ef við fjarlægjum legg, e, úr netinu okkar, G = \{V, E\},  sem er hluti af minnsta span trénu fyrir netið, brotnar upprunalega minnsta span tréið upp í tvo hluta, A og B. Til þess að finna minnsta span tréð fyrir þetta nýja net nægir okkur að finna þann legg með minnsta vægi sem tengir saman hlutana A og B. Tré sem inniheldur þennan legg verður þá minnsta span tré netsins G\_1 = \{V, E - \{e\}\}. \\ \\
 
+Fyrsta skrefið í þessari lausn er að finna út hvaða hnútar tilheyra hópi A og hvaða hópar tilheyra hnúti B. Til þess datt okkur í hug að nota DFS (e. Depth-First Search) á einhvern hnút og finna þannig út alla hnúta sem tengjast þessum gefna hnúti. Þeir hnútar væru í hópi A. Allir hnútar sem tengjast þessum hnúti ekki í gegnum legg sem var hluti af upprunalega MSTinu tilheyra því hópi B.\\ \\
 
+Síðan væri hægt að finna þann legg með minnst vægi sem tengir þessa tvo leggi saman og setja hann í hið nýja span tré. \\
+
+\textbf{Keyrsla forrits:} python prim.py inntak
 
 
 \end{document}
